@@ -43,8 +43,11 @@ pluto_read <- function(experiment_uuid, data_type, limit=1000){
     }
     
     return(df)
-  }
-  else{
+    
+  } else if (response$status_code == 401){
+    stop('Unauthorized: User does not have permission to view experiment')
+    
+  } else{
     stop(paste0('Response: ', response$status_code))
   }
 }
