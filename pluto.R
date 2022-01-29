@@ -3,7 +3,7 @@ library(jsonlite)
 library(rjson)
 
 # Function to read sample and assay data
-pluto_read <- function(experiment_uuid, data_type, limit=1000){
+pluto_read <- function(experiment_id, data_type, plot_id=NULL, limit=1000){
   
   access_token = Sys.getenv('PLUTO_API_TOKEN')
   if (is.null(access_token)){
@@ -11,15 +11,25 @@ pluto_read <- function(experiment_uuid, data_type, limit=1000){
   }
   
   if (data_type == 'sample'){
-    endpoint = '/sample-data/'
+    endpoint = paste0('/sample-data/?limit=', limit)
+    
   } else if (data_type == 'assay'){
-    endpoint = '/assay-data/'
-  } else{
+    endpoint = paste0('/assay-data/?limit=', limit)
+    
+  } else if (data_type == 'deg'){
+    
+    if (is.null(plot_id)){
+      stop("plot_id param must be provided to fetch DEG data")
+    } else{
+      endpoint = paste0('/plots/', plot_id, '/data/?limit=', limit)
+    }
+    
+  }else{
     stop("Unsupported data_type. Supported types are 'sample' and 'assay'.")
   }
   
   path = paste0('https://api.pluto.bio/lab/experiments/',
-                experiment_uuid, endpoint, '?limit=', limit)
+                experiment_id, endpoint)
   
   response = GET(path, 
                  add_headers(Authorization = paste0('Token ',
