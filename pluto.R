@@ -69,7 +69,7 @@ pluto_read <- function(experiment_id, data_type, limit=NULL, plot_id=NULL){
   if (response$status_code == 200){
     
     # Calculate whether we need to paginate
-    response_obj = fromJSON(prettify(content(response, as = 'text', encoding = 'UTF-8')))
+    response_obj = fromJSON(prettify(httr::content(response, as = 'text', encoding = 'UTF-8')))
     total_count = response_obj$count
     
     # Temp until count is added to the data/ endpoint
