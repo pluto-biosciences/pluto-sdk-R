@@ -6,7 +6,7 @@ library(RColorBrewer)
 # Helper function to format JSON -> df
 pluto_api_response_to_df <- function(response){
   
-  json_obj = prettify(content(response, as = 'text', encoding = 'UTF-8'))
+  json_obj = prettify(httr::content(response, as = 'text', encoding = 'UTF-8'))
   json_list = fromJSON(json_obj)
   
   column_headers = unlist(json_list$headers)
