@@ -41,17 +41,17 @@ pluto_read <- function(experiment_id, data_type, limit=NULL, plot_id=NULL){
   } else if (data_type == 'assay'){
     endpoint = '/assay-data/'
     
-  } else if (data_type == 'deg'){
+  } else if (data_type == 'results'){
     
     if (is.null(plot_id)){
-      stop("plot_id param must be provided to fetch DEG data")
+      stop("plot_id param must be provided to fetch results")
       
     } else{
       endpoint = paste0('/plots/', plot_id, '/data/')
     }
     
   } else{
-    stop("Unsupported data_type. Supported types are 'sample' and 'assay'.")
+    stop("Unsupported data_type. Supported types are 'sample', 'assay', and 'results'.")
   }
   
   if (!is.null(limit)){
