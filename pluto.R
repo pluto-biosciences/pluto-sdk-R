@@ -79,9 +79,9 @@ pluto_read <- function(experiment_id, data_type, limit=NULL, plot_id=NULL){
     if (!is.null(limit)){
       
       if (total_count <= limit){
-        message('All ', total_count, ' rows of the assay data were fetched.')
+        message('All ', total_count, ' rows of the ', data_type, ' data were fetched.')
       } else{
-        message('Note: Assay data has ', total_count, ' rows but only ', limit, 
+        message('Note: Data has ', total_count, ' rows but only ', limit, 
                 ' will be fetched due to the "limit" parameter.', 
                 '\nIncrease or remove the "limit" parameter if more rows are desired.')
       }
@@ -91,12 +91,12 @@ pluto_read <- function(experiment_id, data_type, limit=NULL, plot_id=NULL){
     } else{
       
       if (total_count <= pagination_step_size){
-        message('All ', total_count, ' rows of the assay data were fetched.')
+        message('All ', total_count, ' rows of the ', data_type, ' data were fetched.')
         final_df = pluto_api_response_to_df(response)
         
       } else{
         message('Paginating API calls to retrieve all ', total_count, 
-                ' rows in the assay data in batches of ', 
+                ' rows in the ', data_type, ' data in batches of ', 
                 pagination_step_size, ' rows...')
         
         final_df = pluto_api_response_to_df(response)
