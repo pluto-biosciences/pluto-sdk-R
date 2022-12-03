@@ -1,7 +1,6 @@
 library(httr)
 library(jsonlite)
 library(rjson)
-source('helpers.R')
 
 # Helper function to format JSON -> df
 pluto_api_response_to_df <- function(response){
