@@ -1,7 +1,7 @@
 library(httr)
 library(jsonlite)
 library(rjson)
-library(RColorBrewer)
+source('helpers.R')
 
 # Helper function to format JSON -> df
 pluto_api_response_to_df <- function(response){
@@ -150,13 +150,3 @@ pluto_read <- function(experiment_id, data_type, limit=NULL, plot_id=NULL){
     
   }
 }
-
-# Pluto color palette
-pluto_palette <- c("#3446A5",
-                   "#E1E7FD",
-                   "#2F317C",
-                   "#CED4FB",
-                   "#BB77FF",
-                   "#E9D5FF",
-                   "#1597BB",
-                   "#D2F6FA")
