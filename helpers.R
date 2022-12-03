@@ -10,6 +10,11 @@ pluto_palette <- c("#3446A5",
                    "#1597BB",
                    "#D2F6FA")
 
+# Heatmap palette
+cols <- brewer.pal(11, 'Spectral')
+heatmap_palette <- colorRampPalette(c(rep(cols[10], 3), 'black', rep(cols[1], 3)))(n = 100)
+zscore_breaks <- seq(-4, 4, length=101)
+
 pluto_heatmap <- function(x,
                       Rowv = TRUE, Colv = if (symm) "Rowv" else TRUE,
                       distfun = dist,
@@ -20,9 +25,9 @@ pluto_heatmap <- function(x,
                       na.rm = TRUE,
                       revC = identical(Colv,"Rowv"),
                       add.expr,
-                      breaks,
+                      breaks = zscore_breaks,
                       symbreaks = max(x < 0, na.rm = TRUE) || scale != "none",
-                      col = "heat.colors",
+                      col = heatmap_palette,
                       colsep,
                       rowsep,
                       sepcolor = "white",
