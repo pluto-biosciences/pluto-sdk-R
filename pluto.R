@@ -9,19 +9,19 @@ pluto_api_response_to_df <- function(response){
   json_list = fromJSON(json_obj)
   
   column_headers = unlist(json_list$headers)
-  df = as.data.frame(json_list$items)
-  #max_row = length(json_list$items)
-  #df = as.data.frame(matrix(nrow = max_row, ncol = length(column_headers)))
-  #names(df) = column_headers
+  #df = as.data.frame(json_list$items)
+  max_row = length(json_list$items)
+  df = as.data.frame(matrix(nrow = max_row, ncol = length(column_headers)))
+  names(df) = column_headers
   
-  #for (i in 1:max_row){
-  #  col = json_list$items[[i]]
-  #  for (ii in 1:length(col)){
-  #    if (is.character(unlist(col[ii])) | is.numeric(unlist(col[ii]))){
-  #      df[ii, i] = col[ii]
-  #    }
-  #  }
-  #}
+  for (i in 1:max_row){
+    col = json_list$items[[i]]
+    for (ii in 1:length(col)){
+      if (is.character(unlist(col[ii])) | is.numeric(unlist(col[ii]))){
+        df[i, ii] = col[ii]
+      }
+    }
+  }
   return(df)
 }
 
