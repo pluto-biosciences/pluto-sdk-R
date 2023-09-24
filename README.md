@@ -80,8 +80,8 @@ sample_data <- pluto_read_data(experiment_id = 'PLX140206',
 
 ### Assay data
 ```
-assay_data <- pluto_read(experiment_id = 'PLX140206', 
-                         table_type = 'assay')
+assay_data <- pluto_read_data(experiment_id = 'PLX140206', 
+                              table_type = 'assay')
 
 # Paginating API calls to retrieve all 32544 rows in the assay data in batches of 10000 rows... 
 # Fetching rows 10001 to 20001... 
