@@ -24,22 +24,20 @@ Copy the API token that you created on your Account page and store it in an envi
 PLUTO_API_TOKEN="<YOUR API TOKEN>"
 ```
 
-### 2. Source the latest version of the R package
+### 2. Install the `pluto` R package
 
 ```
-# Load required dependencies
-library(httr)
-library(jsonlite)
-library(rjson)
+# Install devtools if you don't already have it
+install.packages("devtools")
 
-# Print PLUTO_API_TOKEN to confirm that it's in your environment
-Sys.getenv('PLUTO_API_TOKEN')
+# Install the pluto R package
+devtools::install_github("pluto-biosciences/pluto-sdk-r")
+```
 
-# If PLUTO_API_TOKEN is blank, make sure the API key is in .Renviron
-# and restart your R session, then rerun Sys.getenv('PLUTO_API_TOKEN')
+Once installed, you can load the Pluto R package into your scripts with
 
-# Import the pluto_read() function
-devtools::source_url("https://github.com/pluto-biosciences/pluto-sdk-R/blob/main/pluto.R?raw=TRUE")
+```
+library(pluto)
 ```
 
 ## Fetch data from Pluto
@@ -47,8 +45,8 @@ devtools::source_url("https://github.com/pluto-biosciences/pluto-sdk-R/blob/main
 ### Sample data
 
 ```
-sample_data <- pluto_read(experiment_id = 'PLX140206', 
-                          data_type = 'sample')
+sample_data <- pluto_read_data(experiment_id = 'PLX140206', 
+                               table_type = 'sample')
 
 # All 12 rows of the sample data were fetched
 ```
@@ -58,7 +56,7 @@ sample_data <- pluto_read(experiment_id = 'PLX140206',
 ### Assay data
 ```
 assay_data <- pluto_read(experiment_id = 'PLX140206', 
-                         data_type = 'assay')
+                         table_type = 'assay')
 
 # Paginating API calls to retrieve all 32544 rows in the assay data in batches of 10000 rows... 
 # Fetching rows 10001 to 20001... 
