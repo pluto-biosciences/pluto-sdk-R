@@ -5,19 +5,27 @@
 #' `PLUTO_API_TOKEN` environment variable to be provided in subsequent API requests.
 #'
 #' @param api_key String, API token
+#' @param api_key Boolean, Save the API token to .Renviron
 #' @param silent Boolean, suppress login message
 #' @returns `TRUE` if API key is valid, otherwise returns an error message.
-pluto_login <- function(api_key, silent = FALSE){
+pluto_login <- function(api_key, save_Renviron = FALSE, silent = FALSE){
 
   if (!is_valid_api_key(api_key)){
     stop("Invalid API key")
 
   } else{
     Sys.setenv(PLUTO_API_TOKEN = api_key)
+    quiet_message(silent,
+                  message = "Welcome! You're logged in.")
 
-    if (!silent){
-      message("Welcome! You're logged in.")
+    if (save_Renviron){
+      if (!file.exists('.Renviron')){
+        file.create('.Renviron')
+      }
+      line <- paste0("PLUTO_API_TOKEN=", api_key)
+      write(line, file = ".Renviron", append = TRUE)
     }
+
     return(TRUE)
   }
 

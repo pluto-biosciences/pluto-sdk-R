@@ -17,9 +17,9 @@ pluto_get_data(experiment_id, table_type, limit = NULL, silent = FALSE)
 }
 \value{
 A list containing \code{df}, the data.frame of the requested data if it was successfully fetched, and \code{status}, a list containing information from the Pluto API request:\tabular{ll}{
-\code{status_code} \tab HTTP status code (200, 400, 401) \cr
+\code{status_code} \tab HTTP status code (e.g. 200, 400, 401) \cr
 \tab \cr
-\code{code} \tab String, computer-friendly code for response \cr
+\code{code} \tab String, computer-friendly code for response (e.g. \code{authentication_failed}) \cr
 \tab \cr
 \code{message} \tab Additional details \cr
 }

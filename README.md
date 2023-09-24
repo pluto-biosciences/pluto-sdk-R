@@ -14,9 +14,45 @@ A new API token will be generated, and can then be copied or viewed.
 
 This API token can be used to fetch data programmatically using this R package.
 
-## Set up R environment
+## Install the `pluto` R package
 
-### 1. Set the `PLUTO_API_TOKEN` environment variable
+```
+# Install devtools if you don't already have it
+install.packages("devtools")
+
+# Install the pluto R package
+remotes::install_github("pluto-biosciences/pluto-sdk-r")
+```
+
+Once installed, you can load the Pluto R package into your scripts with `library(pluto)`.
+
+## Provide Pluto credentials
+
+### Option 1: Provide your API token interactively / at run-time
+
+You can "log in" to Pluto interactively by providing your API token to the `pluto_login` helper function.
+
+To save your API key to the current environment so it can be used in subsequent API calls _during the current session_, simply provide the API key:
+
+```
+library(pluto)
+
+pluto_login("<Your API key>")
+```
+
+You can also use `save_Renviron = T` to save your API key to the current environment AND save it to your `.Renviron` file so that it will be referenced in future sessions. This is a shortcut that achieves the same outcome as the manual Option #2 described below.
+
+```
+library(pluto)
+
+pluto_login("<Your API key>", save_Renviron = T)
+
+```
+
+
+### Option 2: Manually add the `PLUTO_API_TOKEN` environment variable to your `.Renviron`
+
+When using Pluto in one of your R projects, it is convenient to save your API token to an environment variable so that it can be easily referenced when running scripts in that project.
 
 Copy the API token that you created on your Account page and store it in an environment variable called PLUTO_API_TOKEN. To do this, create an `.Renviron` file containing:
 
@@ -24,27 +60,16 @@ Copy the API token that you created on your Account page and store it in an envi
 PLUTO_API_TOKEN="<YOUR API TOKEN>"
 ```
 
-### 2. Install the `pluto` R package
+Save the file, and restart your R session to apply changes. To confirm that your API token is in your active R environment at any time, you can run `Sys.getenv("PLUTO_API_TOKEN")`.
 
-```
-# Install devtools if you don't already have it
-install.packages("devtools")
-
-# Install the pluto R package
-devtools::install_github("pluto-biosciences/pluto-sdk-r")
-```
-
-Once installed, you can load the Pluto R package into your scripts with
-
-```
-library(pluto)
-```
 
 ## Fetch data from Pluto
 
 ### Sample data
 
 ```
+library(pluto)
+
 sample_data <- pluto_read_data(experiment_id = 'PLX140206', 
                                table_type = 'sample')
 
@@ -85,6 +110,6 @@ deg_table <- pluto_read(experiment_id = "PLX140206",
 <img width="758" alt="deg_api" src="https://user-images.githubusercontent.com/4951228/200468566-36b2fd20-ee6c-429c-8d37-08a799927910.png">
 
 
-## Available endpoints
+## More resources
 
 For more information about all available endpoints, visit the [Pluto API docs](https://docs.pluto.bio)

@@ -4,10 +4,10 @@
 \alias{pluto_login}
 \title{Validate and store Pluto API token}
 \usage{
-pluto_login(api_key, silent = FALSE)
+pluto_login(api_key, save_Renviron = FALSE, silent = FALSE)
 }
 \arguments{
-\item{api_key}{String, API token}
+\item{api_key}{Boolean, Save the API token to .Renviron}
 
 \item{silent}{Boolean, suppress login message}
 }
