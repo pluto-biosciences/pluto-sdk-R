@@ -7,7 +7,9 @@
 pluto_login(api_key, save_Renviron = FALSE, silent = FALSE)
 }
 \arguments{
-\item{api_key}{Boolean, Save the API token to .Renviron}
+\item{api_key}{String, API token}
+
+\item{save_Renviron}{Boolean, save the API token to .Renviron}
 
 \item{silent}{Boolean, suppress login message}
 }

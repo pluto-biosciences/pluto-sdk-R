@@ -7,7 +7,7 @@
 pluto_is_logged_in(return_key = FALSE)
 }
 \arguments{
-\item{return_key}{Boolean, suppress logout message}
+\item{return_key}{Boolean, print the API key}
 }
 \value{
 \code{TRUE} if a valid API key is in the environment. If \code{return_key=T}, the API
