@@ -8,6 +8,7 @@
 #' @param save_Renviron Boolean, save the API token to .Renviron
 #' @param silent Boolean, suppress login message
 #' @returns `TRUE` if API key is valid, otherwise returns an error message.
+#' @export
 pluto_login <- function(api_key, save_Renviron = FALSE, silent = FALSE){
 
   if (!is_valid_api_key(api_key)){
@@ -40,6 +41,7 @@ pluto_login <- function(api_key, save_Renviron = FALSE, silent = FALSE){
 #'
 #' @param silent Boolean, suppress logout message
 #' @returns `TRUE` when environment variable has been cleared.
+#' @export
 pluto_logout <- function(silent = FALSE){
   Sys.setenv(PLUTO_API_TOKEN = "")
   if (!silent){
@@ -61,6 +63,7 @@ pluto_logout <- function(silent = FALSE){
 #' token will be printed to the console.
 #'
 #' `FALSE` if a valid API key is not in the environment.
+#' @export
 pluto_is_logged_in <- function(return_key = FALSE){
 
   local_api_key <- Sys.getenv("PLUTO_API_TOKEN")

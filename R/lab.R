@@ -38,6 +38,7 @@ data_response_to_df <- function(response_json){
 #'    \tab \cr
 #'    \code{message} \tab Additional details \cr
 #' }
+#' @export
 pluto_get_data <- function(experiment_id, table_type, limit = NULL, silent = FALSE){
 
   page_size <- 10000
@@ -182,6 +183,7 @@ pluto_get_data <- function(experiment_id, table_type, limit = NULL, silent = FAL
 #' @param limit Integer for max rows to fetch, or NULL to fetch all rows
 #' @param silent Boolean, whether to suppress console messages
 #' @returns Data.frame containing the requested data
+#' @export
 pluto_read_data <- function(experiment_id, table_type, limit = NULL, silent = FALSE){
   data_obj <- pluto_get_data(experiment_id, table_type, limit, silent)
   return(data_obj$df)
