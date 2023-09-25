@@ -43,12 +43,8 @@ pluto_login("<Your API key>")
 You can also use `save_Renviron = T` to save your API key to the current environment AND save it to your `.Renviron` file so that it will be referenced in future sessions. This is a shortcut that achieves the same outcome as the manual Option #2 described below.
 
 ```
-library(pluto)
-
 pluto_login("<Your API key>", save_Renviron = T)
-
 ```
-
 
 ### Option 2: Manually add the `PLUTO_API_TOKEN` environment variable to your `.Renviron`
 
@@ -57,15 +53,31 @@ When using Pluto in one of your R projects, it is convenient to save your API to
 Copy the API token that you created on your Account page and store it in an environment variable called PLUTO_API_TOKEN. To do this, create an `.Renviron` file containing:
 
 ```
+// .Renviron
+
 PLUTO_API_TOKEN="<YOUR API TOKEN>"
 ```
 
 Save the file, and restart your R session to apply changes. To confirm that your API token is in your active R environment at any time, you can run `Sys.getenv("PLUTO_API_TOKEN")`.
 
+## Use the Pluto R package
 
-## Fetch data from Pluto
+### Fetch project information from Pluto
 
-### Sample data
+Create a data frame containing summary information (e.g. Pluto ID, name, created_by) for each Experiment in the Project.
+
+```
+library(pluto)
+
+all_project_experiments <- pluto_read_project_experiments(project_id = 'PLXP14223')
+```
+
+
+### Fetch experiment data from Pluto
+
+#### Sample data
+
+Create a data frame from the sample data table of an Experiment.
 
 ```
 library(pluto)
@@ -78,7 +90,10 @@ sample_data <- pluto_read_data(experiment_id = 'PLX140206',
 
 <img width="757" alt="sample_data_api" src="https://user-images.githubusercontent.com/4951228/200468390-ca5377e7-72f2-4fea-a1b7-88e6a2c3942a.png">
 
-### Assay data
+#### Assay data
+
+Create a data frame from the assay data table of an Experiment.
+
 ```
 assay_data <- pluto_read_data(experiment_id = 'PLX140206', 
                               table_type = 'assay')
@@ -91,7 +106,7 @@ assay_data <- pluto_read_data(experiment_id = 'PLX140206',
 
 <img width="758" alt="assay_data_api" src="https://user-images.githubusercontent.com/4951228/200468369-058ef989-c880-4a8e-adac-9ca76f8bf5fc.png">
 
-### Plot data (results)
+#### Plot data (results)
 
 Visit our website to [learn more about the assays and analyses that Pluto supports](https://pluto.bio/product/experiments). To fetch data from a specific analysis and plot, obtain the plot ID from the Methods Modal on any plot:
 

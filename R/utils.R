@@ -24,3 +24,26 @@ is_valid_api_key <- function(api_key){
 
   return(TRUE)
 }
+
+data_response_to_df <- function(response_json){
+
+  column_names <- response_json$headers
+  nrows <- length(response_json$items)
+  df <- data.frame()
+
+  for (i in 1:nrows){
+
+    # Convert any NULLs in the row to NA
+    row <- response_json$items[[i]]
+    is_null_vals <- sapply(row, is.null)
+    if (any(is_null_vals)){
+      null_vals <- row[which(is_null_vals)] <- NA
+    }
+
+    # Append cleaned row to the final data frame
+    df <- rbind(df, as.data.frame(row))
+  }
+
+  return(df)
+
+}

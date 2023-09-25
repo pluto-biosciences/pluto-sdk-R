@@ -2,7 +2,7 @@ test_that("valid response has correct structure", {
   skip_on_cran()
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
   expected_rows <- 10
-  sample_data <- pluto_get_data(experiment_id = TESTTHAT_EXPT_ID,
+  sample_data <- pluto_get_experiment_data(experiment_id = TESTTHAT_EXPT_ID,
                               table_type = "sample", limit = expected_rows,
                               silent = T)
   expect_equal(sample_data$status$status_code, 200)
@@ -13,7 +13,7 @@ test_that("valid response has correct structure", {
 test_that("unauthorized response has correct structure", {
   skip_on_cran()
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_INVALID_API_TOKEN)
-  sample_data <- pluto_get_data(experiment_id = TESTTHAT_EXPT_ID,
+  sample_data <- pluto_get_experiment_data(experiment_id = TESTTHAT_EXPT_ID,
                               table_type = "sample", limit = 10, silent = T)
   expect_equal(sample_data$status$status_code, 401)
   expect_equal(sample_data$status$code, "authentication_failed")
@@ -23,7 +23,7 @@ test_that("unauthorized response has correct structure", {
 test_that("experiment doesn't exist", {
   skip_on_cran()
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
-  sample_data <- pluto_get_data(experiment_id = "PLXBAD", table_type = "sample",
+  sample_data <- pluto_get_experiment_data(experiment_id = "PLXBAD", table_type = "sample",
                               limit = 10, silent = T)
   expect_equal(sample_data$status$status_code, 400)
   expect_equal(sample_data$status$code, "invalid_object_id")
@@ -34,10 +34,10 @@ test_that("paginating works", {
   skip_on_cran()
   skip(message = "Skipping long-running pagination integration test")
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
-  expected_rows <- 11000
-  assay_data <- pluto_get_data(experiment_id = TESTTHAT_EXPT_ID,
+  expected_rows <- 10003
+  assay_data <- pluto_get_experiment_data(experiment_id = TESTTHAT_EXPT_ID,
                                 table_type = "assay", limit = expected_rows,
-                                silent = T)
+                                silent = F)
   expect_equal(assay_data$status$status_code, 200)
   expect_null(assay_data$status$code)
   expect_equal(nrow(assay_data$df), expected_rows)

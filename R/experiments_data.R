@@ -1,31 +1,10 @@
-data_response_to_df <- function(response_json){
-
-  column_names <- response_json$headers
-  nrows <- length(response_json$items)
-  df <- data.frame()
-
-  for (i in 1:nrows){
-
-    # Convert any NULLs in the row to NA
-    row <- response_json$items[[i]]
-    is_null_vals <- sapply(row, is.null)
-    if (any(is_null_vals)){
-      null_vals <- row[which(is_null_vals)] <- NA
-    }
-
-    # Append cleaned row to the final data frame
-    df <- rbind(df, as.data.frame(row))
-  }
-
-  return(df)
-
-}
+# EXPERIMENTS DATA ENDPOINTS
 
 #' Get sample or assay data tables from Pluto
 #'
 #' @description
 #' Fetches the sample or assay data table for a given experiment in Pluto and
-#' returns
+#' returns metadata from the API request as well as the data itself
 #'
 #' @param experiment_id Pluto experiment ID
 #' @param table_type Table type, choices are "sample" or "assay"
@@ -39,7 +18,7 @@ data_response_to_df <- function(response_json){
 #'    \code{message} \tab Additional details \cr
 #' }
 #' @export
-pluto_get_data <- function(experiment_id, table_type, limit = NULL, silent = FALSE){
+pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, silent = FALSE){
 
   page_size <- 10000
 
@@ -172,6 +151,7 @@ pluto_get_data <- function(experiment_id, table_type, limit = NULL, silent = FAL
   }
 }
 
+
 #' Read Pluto sample or assay data table into a data frame
 #'
 #' @description
@@ -185,6 +165,38 @@ pluto_get_data <- function(experiment_id, table_type, limit = NULL, silent = FAL
 #' @returns Data.frame containing the requested data
 #' @export
 pluto_read_data <- function(experiment_id, table_type, limit = NULL, silent = FALSE){
-  data_obj <- pluto_get_data(experiment_id, table_type, limit, silent)
+  data_obj <- pluto_get_experiment_data(experiment_id, table_type, limit, silent)
   return(data_obj$df)
+}
+
+
+#' Read Pluto sample data table into a data frame
+#'
+#' @description
+#' Fetches the sample data table for a given experiment in Pluto and stores it
+#' in a data.frame
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param limit Integer for max rows to fetch, or NULL to fetch all rows
+#' @param silent Boolean, whether to suppress console messages
+#' @returns Data.frame containing the requested data
+#' @export
+pluto_read_sample_data <- function(experiment_id, limit = NULL, silent = FALSE){
+  return(pluto_read_data(experiment_id, table_type = "sample", limit, silent))
+}
+
+
+#' Read Pluto assay data table into a data frame
+#'
+#' @description
+#' Fetches the assay data table for a given experiment in Pluto and stores it
+#' in a data.frame
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param limit Integer for max rows to fetch, or NULL to fetch all rows
+#' @param silent Boolean, whether to suppress console messages
+#' @returns Data.frame containing the requested data
+#' @export
+pluto_read_assay_data <- function(experiment_id, limit = NULL, silent = FALSE){
+  return(pluto_read_data(experiment_id, table_type = "assay", limit, silent))
 }
