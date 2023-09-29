@@ -109,14 +109,17 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
                         '&offset=', offset_num)
           paginated_req <- httr2::request(paginated_url_path)
           paginated_resp <- paginated_req %>% httr2::req_headers(Authorization = paste0('Token ', api_token)) %>% httr2::req_perform()
+          paginated_resp_obj <- httr2::resp_body_json(paginated_resp)
 
           if (paginated_resp$status_code == 200){
             final_df <- rbind(final_df,
-                             data_response_to_df(resp_obj))
+                             data_response_to_df(paginated_resp_obj))
 
           } else{
             stop(paste0('Response: ', paginated_resp$status_code))
           }
+
+          paginated_resp_obj = NULL
 
         }
 
