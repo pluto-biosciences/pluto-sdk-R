@@ -92,21 +92,19 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
 
         final_df <- data_response_to_df(resp_obj)
 
-        offsets <- as.numeric(unlist(lapply(split(1:total_count, ceiling(seq_along(1:total_count)/page_size))[-1],
-                                           function (l){
-                                             l[[1]]
-                                           })))
 
-        for (offset_num in offsets){
+        while(nrow(final_df) < total_count){
+
+          cat('nrow(final_df)\n')
+          cat(nrow(final_df))
 
           quiet_message(silent,
-                        message = c('Fetching rows ', offset_num, ' to ', offset_num + page_size, '...'))
+                        message = c('Fetching rows ', nrow(final_df)+1, '...'))
 
           paginated_url_path <- paste0('https://api.pluto.bio/lab/experiments/',
                         experiment_id, endpoint,
-                        '?limit=', min(c(page_size,
-                                         total_count - nrow(final_df))),
-                        '&offset=', offset_num)
+                        '?limit=', page_size,
+                        '&offset=', nrow(final_df))
           paginated_req <- httr2::request(paginated_url_path)
           paginated_resp <- paginated_req %>% httr2::req_headers(Authorization = paste0('Token ', api_token)) %>% httr2::req_perform()
           paginated_resp_obj <- httr2::resp_body_json(paginated_resp)
@@ -119,7 +117,7 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
             stop(paste0('Response: ', paginated_resp$status_code))
           }
 
-          paginated_resp_obj = NULL
+          paginated_resp_obj <- NULL
 
         }
 
