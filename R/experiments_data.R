@@ -95,9 +95,6 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
 
         while(nrow(final_df) < total_count){
 
-          cat('nrow(final_df)\n')
-          cat(nrow(final_df))
-
           quiet_message(silent,
                         message = c('Fetching rows ', nrow(final_df)+1, '...'))
 
