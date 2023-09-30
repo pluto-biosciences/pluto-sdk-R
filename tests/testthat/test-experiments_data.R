@@ -64,7 +64,7 @@ test_that("paginated limit works", {
 
 test_that("paginated no limit works", {
   skip_on_cran()
-  #skip(message = "Skipping long-running pagination integration test")
+  skip(message = "Skipping long-running pagination integration test")
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
   expected_rows <- 15629
   assay_data <- pluto_get_experiment_data(experiment_id = TESTTHAT_EXPT_ID,
@@ -94,7 +94,8 @@ test_that("pluto_read_data assay data saves a data frame", {
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
   expected_rows <- 12
   sample_data <- pluto_read_data(experiment_id = TESTTHAT_EXPT_ID,
-                                 table_type = "assay", limit = expected_rows,
+                                 table_type = "assay",
+                                 limit = expected_rows,
                                  silent = T)
   expect_s3_class(sample_data, 'data.frame')
   expect_equal(nrow(sample_data), expected_rows)
@@ -102,7 +103,7 @@ test_that("pluto_read_data assay data saves a data frame", {
 
 test_that("pluto_read_data paginated no limit works", {
   skip_on_cran()
-  #skip(message = "Skipping long-running pagination integration test")
+  skip(message = "Skipping long-running pagination integration test")
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
   expected_rows <- 15629
   assay_data <- pluto_read_data(experiment_id = TESTTHAT_EXPT_ID,

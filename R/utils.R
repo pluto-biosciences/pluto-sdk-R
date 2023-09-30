@@ -1,3 +1,5 @@
+PLOT_DATA_FORMAT_ARROW <- c('volcano_plot_v2')
+
 is_alphanumeric <- function(input_string){
   return(grepl("^[[:alnum:]]+$", input_string))
 }
@@ -45,5 +47,41 @@ data_response_to_df <- function(response_json){
   }
 
   return(df)
+
+}
+
+arrow_response_to_df <- function(response_json){
+
+  column_names <- response_json$headers
+  df <- NULL
+
+  for (i in 1:length(column_names)){
+
+    # Convert any NULLs in the row to NA
+    y <- response_json$items[[i]]
+    is_null_vals <- sapply(y, is.null)
+    if (any(is_null_vals)){
+      null_vals <- row[which(is_null_vals)] <- NA
+    }
+
+    # Append cleaned column to the final data frame
+    new_column <- as.data.frame(matrix(y))
+    if (is.null(df)){
+      df <- new_column
+    } else{
+      df <- cbind(df, new_column)
+    }
+  }
+
+  names(df) <- column_names
+  return(df)
+
+}
+
+json_to_df_transfomer <- function(response_json, type){
+
+  switch(type,
+         data = data_response_to_df(response_json),
+         arrow = arrow_response_to_df(response_json))
 
 }
