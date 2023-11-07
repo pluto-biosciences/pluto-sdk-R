@@ -93,12 +93,12 @@ test_that("pluto_read_data assay data saves a data frame", {
   skip_on_cran()
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
   expected_rows <- 12
-  sample_data <- pluto_read_data(experiment_id = TESTTHAT_EXPT_ID,
+  assay_data <- pluto_read_data(experiment_id = TESTTHAT_EXPT_ID,
                                  table_type = "assay",
                                  limit = expected_rows,
                                  silent = T)
-  expect_s3_class(sample_data, 'data.frame')
-  expect_equal(nrow(sample_data), expected_rows)
+  expect_s3_class(assay_data, 'data.frame')
+  expect_equal(nrow(assay_data), expected_rows)
 })
 
 test_that("pluto_read_data paginated no limit works", {

@@ -79,10 +79,11 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
 
     } else{
 
+      final_df <- data_response_to_df(resp_obj)
+
       if (total_count <= page_size){
         quiet_message(silent,
                       message = c('All ', total_count, ' rows of the ', table_type, ' data were fetched.'))
-        final_df <- data_response_to_df(resp_obj)
 
       } else{
         quiet_message(silent,
@@ -90,33 +91,34 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
                       ' rows in the ', table_type, ' data in batches of ',
                       page_size, ' rows...'))
 
-        final_df <- data_response_to_df(resp_obj)
+        # Parallelized requests
+        offsets <- seq(page_size, total_count, by = page_size)
 
+        paginated_url_paths <- paste0('https://api.pluto.bio/lab/experiments/',
+                                      experiment_id, endpoint,
+                                      '?limit=', page_size,
+                                      '&offset=', offsets)
+        reqs <- lapply(paginated_url_paths, function(u){
+          httr2::request(u) %>%
+            httr2::req_headers(Authorization = paste0('Token ', api_token))
+        })
 
-        while(nrow(final_df) < total_count){
+        resps <- httr2::multi_req_perform(reqs)
 
-          quiet_message(silent,
-                        message = c('Fetching rows ', nrow(final_df)+1, '...'))
+        paginated_resp_objs <- c()
 
-          paginated_url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                        experiment_id, endpoint,
-                        '?limit=', page_size,
-                        '&offset=', nrow(final_df))
-          paginated_req <- httr2::request(paginated_url_path)
-          paginated_resp <- paginated_req %>% httr2::req_headers(Authorization = paste0('Token ', api_token)) %>% httr2::req_perform()
-          paginated_resp_obj <- httr2::resp_body_json(paginated_resp)
+        for (paginated_resp in resps){
 
           if (paginated_resp$status_code == 200){
-            final_df <- rbind(final_df,
-                             data_response_to_df(paginated_resp_obj))
+            paginated_resp_objs <- c(paginated_resp_objs, httr2::resp_body_json(paginated_resp))
 
           } else{
             stop(paste0('Response: ', paginated_resp$status_code))
           }
-
-          paginated_resp_obj <- NULL
-
         }
+
+        final_df <- rbind(final_df,
+                          do.call(data_response_to_df, list(paginated_resp_objs)))
 
       }
     }
