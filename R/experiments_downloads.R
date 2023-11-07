@@ -87,7 +87,8 @@ pluto_read_assay <- function(experiment_id){
 #' @importFrom utils download.file
 pluto_download_result <- function(experiment_id, plot_id, dest_filename = NULL){
 
-  validate_auth()
+  api_token <- Sys.getenv('PLUTO_API_TOKEN')
+  validate_auth(api_token)
 
   plot_details <- pluto_get_plot_details(experiment_id, plot_id)
 
@@ -124,6 +125,7 @@ pluto_download_result <- function(experiment_id, plot_id, dest_filename = NULL){
 #' in a data.frame
 #'
 #' @param experiment_id Pluto experiment ID
+#' @param plot_id Pluto plot ID
 #' @returns Data.frame containing the requested data
 #' @importFrom utils read.csv
 #' @export
