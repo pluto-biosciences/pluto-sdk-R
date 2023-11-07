@@ -2,9 +2,7 @@
 pluto_download_data <- function(experiment_id, table_type, dest_filename = NULL){
 
   api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  if (!is_valid_api_key(api_token)){
-    stop("Invalid API token. Check your PLUTO_API_TOKEN environment variable.")
-  }
+  validate_auth(api_token)
 
   if (table_type == 'sample'){
     endpoint <- '/sample-data/'
@@ -81,6 +79,57 @@ pluto_read_sample <- function(experiment_id){
 pluto_read_assay <- function(experiment_id){
   tmpfile <- tempfile()
   pluto_download_assay_data(experiment_id, dest_filename = tmpfile)
+  df <- read.csv(tmpfile, stringsAsFactors = F)
+  file.remove(tmpfile)
+  return(df)
+}
+
+#' @importFrom utils download.file
+pluto_download_result <- function(experiment_id, plot_id, dest_filename = NULL){
+
+  validate_auth()
+
+  plot_details <- pluto_get_plot_details(experiment_id, plot_id)
+
+  if (is.null(dest_filename)){
+    dest_filename <- paste0(experiment_id, "_", plot_details$plot_details$plot_type, ".csv")
+  }
+
+  url_path <- paste0("https://api.pluto.bio/lab/experiments/", experiment_id, "/plots/",
+                     plot_id, "/download/?filename=", dest_filename)
+
+  req <- httr2::request(url_path)
+  resp <- req %>%
+    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
+    # The line below is required to override httr2's default behavior of
+    # automatically converting HTTP errors into R errors
+    httr2::req_error(is_error = function(resp) FALSE) %>%
+    httr2::req_perform()
+
+  if (resp$status_code == 200){
+
+    resp_obj <- httr2::resp_body_json(resp)
+    utils::download.file(resp_obj$url, destfile = dest_filename, quiet = T)
+
+  } else{
+    stop(paste0('Response: ', resp$status_code))
+  }
+
+}
+
+#' Read Pluto result table into a data frame
+#'
+#' @description
+#' Fetches the result table for a given experiment and plot in Pluto and stores it
+#' in a data.frame
+#'
+#' @param experiment_id Pluto experiment ID
+#' @returns Data.frame containing the requested data
+#' @importFrom utils read.csv
+#' @export
+pluto_read_result <- function(experiment_id, plot_id){
+  tmpfile <- tempfile()
+  pluto_download_result(experiment_id, plot_id, dest_filename = tmpfile)
   df <- read.csv(tmpfile, stringsAsFactors = F)
   file.remove(tmpfile)
   return(df)
