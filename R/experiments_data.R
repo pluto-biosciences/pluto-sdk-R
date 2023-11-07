@@ -23,9 +23,7 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
   page_size <- 10000
 
   api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  if (!is_valid_api_key(api_token)){
-    stop("Invalid API token. Check your PLUTO_API_TOKEN environment variable.")
-  }
+  validate_auth(api_token)
 
   if (table_type == 'sample'){
     endpoint <- '/sample-data/'

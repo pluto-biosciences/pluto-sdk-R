@@ -30,9 +30,7 @@
 pluto_get_plot_details <- function(experiment_id, plot_id, silent = FALSE){
 
   api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  if (!is_valid_api_key(api_token)){
-    stop("Invalid API token. Check your PLUTO_API_TOKEN environment variable.")
-  }
+  validate_auth(api_token)
 
   if (is.null(plot_id)){
     stop("plot_id param must be provided to fetch results")
@@ -92,9 +90,7 @@ pluto_get_experiment_results <- function(experiment_id, table_type, plot_id = NU
   page_size <- 10000
 
   api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  if (!is_valid_api_key(api_token)){
-    stop("Invalid API token. Check your PLUTO_API_TOKEN environment variable.")
-  }
+  validate_auth(api_token)
 
   if (is.null(plot_id)){
     stop("plot_id param must be provided to fetch results")
@@ -160,5 +156,5 @@ pluto_get_experiment_results <- function(experiment_id, table_type, plot_id = NU
 #' @export
 pluto_read_results <- function(experiment_id, plot_id, silent = FALSE){
   return(pluto_get_experiment_results(experiment_id = experiment_id, plot_id = plot_id,
-                         table_type = "results", silent = silent)$df)
+                                      table_type = "results", silent = silent)$df)
 }

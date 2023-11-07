@@ -12,9 +12,7 @@
 pluto_get_project_experiments <- function(project_id){
 
   api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  if (!is_valid_api_key(api_token)){
-    stop("Invalid API token. Check your PLUTO_API_TOKEN environment variable.")
-  }
+  validate_auth(api_token)
 
   url_path <- paste0('https://api.pluto.bio/lab/projects/', project_id,
                      '/experiments')

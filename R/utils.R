@@ -85,3 +85,9 @@ json_to_df_transfomer <- function(response_json, type){
          arrow = arrow_response_to_df(response_json))
 
 }
+
+validate_auth <- function(api_token){
+  if (!is_valid_api_key(api_token)){
+    stop("Invalid API token. Check your PLUTO_API_TOKEN environment variable.")
+  }
+}
