@@ -10,6 +10,8 @@ pluto_download_results(experiment_id, plot_id, dest_filename = NULL)
 \item{experiment_id}{Pluto experiment ID}
 
 \item{plot_id}{Pluto plot ID}
+
+\item{dest_filename}{Destination filename for CSV file (e.g. "PLX12345_deg_table.csv")}
 }
 \value{
 Data.frame containing the requested data

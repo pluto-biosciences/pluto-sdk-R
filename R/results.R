@@ -38,7 +38,7 @@ pluto_get_experiment_results <- function(experiment_id, plot_id = NULL, silent =
     stop("plot_id param must be provided to fetch results")
 
   } else{
-    endpoint <- paste0('/plots/', plot_id, '/data/')
+    endpoint <- paste0('/plots/', plot_id, '/data/?limit=100000')
     url_path <- paste0('https://api.pluto.bio/lab/experiments/',
                        experiment_id, endpoint)
   }
@@ -110,6 +110,7 @@ pluto_read_results <- function(experiment_id, plot_id, silent = FALSE){
 #'
 #' @param experiment_id Pluto experiment ID
 #' @param plot_id Pluto plot ID
+#' @param dest_filename Destination filename for CSV file (e.g. "PLX12345_deg_table.csv")
 #' @returns Data.frame containing the requested data
 #' @importFrom utils read.csv
 #' @export
