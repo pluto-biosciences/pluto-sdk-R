@@ -1,9 +1,9 @@
-# EXPERIMENTS PLOTS & RESULTS ENDPOINTS
+# EXPERIMENTS RESULTS ENDPOINTS
 
-#' Read Pluto results data table into a data frame
+#' Fetch results for a plot
 #'
 #' @description
-#' Fetches the details for a given plot in Pluto
+#' Fetches the results for a given experiment plot in Pluto
 #'
 #' @param experiment_id Pluto experiment ID
 #' @param plot_id Pluto uuid for a plot
@@ -27,65 +27,7 @@
 #'    \code{message} \tab Additional details \cr
 #' }
 #' @export
-pluto_get_plot_details <- function(experiment_id, plot_id, silent = FALSE){
-
-  api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  validate_auth(api_token)
-
-  if (is.null(plot_id)){
-    stop("plot_id param must be provided to fetch results")
-
-  } else{
-    endpoint = paste0('/plots/', plot_id)
-  }
-
-  url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                     experiment_id, endpoint)
-
-  req <- httr2::request(url_path)
-  resp <- req %>%
-    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
-
-  resp_obj <- httr2::resp_body_json(resp)
-
-  if (resp$status_code == 200){
-
-    plot_title <- ifelse(resp_obj$display$plot_title == "",
-                         resp_obj$analysis$name,
-                         resp_obj$display$plot_title)
-
-    return(
-      list(
-        status = list(
-          status_code = resp$status_code,
-          code = resp_obj$code,
-          message = resp_obj$message),
-        plot_details = list(
-          analysis_type = resp_obj$analysis_type,
-          analysis_status = resp_obj$analysis$pipeline_status,
-          analysis_version = resp_obj$analysis$pipeline_version,
-          plot_type = resp_obj$display$display_type,
-          plot_title = plot_title
-        ))
-    )
-  } else {
-    return(
-      list(
-        status = list(
-          status_code = resp$status_code,
-          code = resp_obj$code,
-          message = resp_obj$message),
-        plot_details = NULL)
-    )
-  }
-
-
-}
-
-pluto_get_experiment_results <- function(experiment_id, table_type, plot_id = NULL,
-                                         silent = FALSE){
+pluto_get_experiment_results <- function(experiment_id, plot_id = NULL, silent = FALSE){
 
   page_size <- 10000
 
@@ -121,6 +63,7 @@ pluto_get_experiment_results <- function(experiment_id, table_type, plot_id = NU
   if (resp$status_code == 200){
 
     final_df <- json_to_df_transfomer(resp_obj, transformer_type)
+    final_df <- as.data.frame(lapply(final_df, unlist))
 
     return(
       list(
@@ -155,6 +98,51 @@ pluto_get_experiment_results <- function(experiment_id, table_type, plot_id = NU
 #' @returns Data.frame containing the requested results
 #' @export
 pluto_read_results <- function(experiment_id, plot_id, silent = FALSE){
-  return(pluto_get_experiment_results(experiment_id = experiment_id, plot_id = plot_id,
-                                      table_type = "results", silent = silent)$df)
+  return(pluto_get_experiment_results(experiment_id = experiment_id,
+                                      plot_id = plot_id, silent = silent)$df)
+}
+
+#' Download Pluto results table
+#'
+#' @description
+#' Fetches the results table for a given experiment and plot in Pluto and saves
+#' it as a CSV file
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param plot_id Pluto plot ID
+#' @returns Data.frame containing the requested data
+#' @importFrom utils read.csv
+#' @export
+#' @importFrom utils download.file
+pluto_download_results <- function(experiment_id, plot_id, dest_filename = NULL){
+
+  api_token <- Sys.getenv('PLUTO_API_TOKEN')
+  validate_auth(api_token)
+
+  plot_details <- pluto_get_plot_details(experiment_id, plot_id)
+
+  if (is.null(dest_filename)){
+    dest_filename <- paste0(experiment_id, "_", plot_details$plot_details$plot_type, ".csv")
+  }
+
+  url_path <- paste0("https://api.pluto.bio/lab/experiments/", experiment_id, "/plots/",
+                     plot_id, "/download/?filename=", dest_filename)
+
+  req <- httr2::request(url_path)
+  resp <- req %>%
+    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
+    # The line below is required to override httr2's default behavior of
+    # automatically converting HTTP errors into R errors
+    httr2::req_error(is_error = function(resp) FALSE) %>%
+    httr2::req_perform()
+
+  if (resp$status_code == 200){
+
+    resp_obj <- httr2::resp_body_json(resp)
+    utils::download.file(resp_obj$url, destfile = dest_filename, quiet = T)
+
+  } else{
+    stop(paste0('Response: ', resp$status_code))
+  }
+
 }

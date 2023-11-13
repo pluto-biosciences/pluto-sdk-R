@@ -4,6 +4,12 @@ is_alphanumeric <- function(input_string){
   return(grepl("^[[:alnum:]]+$", input_string))
 }
 
+validate_auth <- function(api_token){
+  if (!is_valid_api_key(api_token)){
+    stop("Invalid API token. Check your PLUTO_API_TOKEN environment variable.")
+  }
+}
+
 quiet_message <- function(silent, message){
   if (!silent){
     return(message(message))
@@ -84,10 +90,4 @@ json_to_df_transfomer <- function(response_json, type){
          data = data_response_to_df(response_json),
          arrow = arrow_response_to_df(response_json))
 
-}
-
-validate_auth <- function(api_token){
-  if (!is_valid_api_key(api_token)){
-    stop("Invalid API token. Check your PLUTO_API_TOKEN environment variable.")
-  }
 }

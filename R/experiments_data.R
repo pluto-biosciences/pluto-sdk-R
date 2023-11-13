@@ -1,29 +1,12 @@
 # EXPERIMENTS DATA ENDPOINTS
 
-#' Get sample or assay data tables from Pluto
-#'
-#' @description
-#' Fetches the sample or assay data table for a given experiment in Pluto and
-#' returns metadata from the API request as well as the data itself
-#'
-#' @param experiment_id Pluto experiment ID
-#' @param table_type Table type, choices are "sample" or "assay"
-#' @param limit Integer for max rows to fetch, or NULL to fetch all rows
-#' @param silent Boolean, whether to suppress console messages
-#' @returns A list containing `df`, the data.frame of the requested data if it was successfully fetched, and `status`, a list containing information from the Pluto API request:\tabular{ll}{
-#'    \code{status_code} \tab HTTP status code (e.g. 200, 400, 401) \cr
-#'    \tab \cr
-#'    \code{code} \tab String, computer-friendly code for response (e.g. `authentication_failed`) \cr
-#'    \tab \cr
-#'    \code{message} \tab Additional details \cr
-#' }
-#' @export
-pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, silent = FALSE){
-
-  page_size <- 10000
+pluto_get_experiment_data_paginated <- function(experiment_id, table_type, limit = NULL,
+                                                silent = FALSE){
 
   api_token <- Sys.getenv('PLUTO_API_TOKEN')
   validate_auth(api_token)
+
+  page_size <- 10000
 
   if (table_type == 'sample'){
     endpoint <- '/sample-data/'
@@ -37,10 +20,10 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
 
   if (!is.null(limit)){
     url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                  experiment_id, endpoint, '?limit=', limit)
+                       experiment_id, endpoint, '?limit=', limit)
   } else{
     url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                  experiment_id, endpoint, '?limit=', page_size)
+                       experiment_id, endpoint, '?limit=', page_size)
   }
 
   req <- httr2::request(url_path)
@@ -69,8 +52,8 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
       } else{
         quiet_message(silent,
                       message = c('Note: Data has ', total_count, ' rows but only ', limit,
-                      ' will be fetched due to the provided "limit" parameter.',
-                      '\nIncrease or remove the "limit" parameter if more rows are desired.'))
+                                  ' will be fetched due to the provided "limit" parameter.',
+                                  '\nIncrease or remove the "limit" parameter if more rows are desired.'))
       }
 
       final_df <- data_response_to_df(resp_obj)
@@ -86,8 +69,8 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
       } else{
         quiet_message(silent,
                       message = c('Paginating API calls to retrieve all ', total_count,
-                      ' rows in the ', table_type, ' data in batches of ',
-                      page_size, ' rows...'))
+                                  ' rows in the ', table_type, ' data in batches of ',
+                                  page_size, ' rows...'))
 
         # Parallelized requests
         offsets <- seq(page_size, total_count, by = page_size)
@@ -121,7 +104,6 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
       }
     }
 
-
     if (table_type == 'sample'){
       names(final_df) <- tolower(names(final_df))
     }
@@ -146,6 +128,58 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL, s
           message = resp_obj$message),
         df = NULL)
     )
+  }
+
+}
+
+#' Get sample or assay data tables from Pluto
+#'
+#' @description
+#' Fetches the sample or assay data table for a given experiment in Pluto and
+#' returns metadata from the API request as well as the data itself
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param table_type Table type, choices are "sample" or "assay"
+#' @param limit Integer for max rows to fetch, or NULL to fetch all rows
+#' @param silent Boolean, whether to suppress console messages
+#' @param paginated Boolean, whether to make paginated request instead of downloading whole table, default FALSE
+#' @returns A list containing `df`, the data.frame of the requested data if it was successfully fetched, and `status`, a list containing information from the Pluto API request:\tabular{ll}{
+#'    \code{status_code} \tab HTTP status code (e.g. 200, 400, 401) \cr
+#'    \tab \cr
+#'    \code{code} \tab String, computer-friendly code for response (e.g. `authentication_failed`) \cr
+#'    \tab \cr
+#'    \code{message} \tab Additional details \cr
+#' }
+#' @export
+pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL,
+                                      silent = FALSE, paginated = FALSE){
+
+  api_token <- Sys.getenv('PLUTO_API_TOKEN')
+  validate_auth(api_token)
+
+  if (!is.null(limit)){
+    paginated <- TRUE
+  }
+
+  if (!paginated){
+
+    # If not paginating, download the whole file and read the CSV into a data.frame
+    temp_filename <- tempfile()
+    pluto_download_data(experiment_id, table_type, dest_filename = temp_filename)
+    final_df <- read.csv(temp_filename, stringsAsFactors = F)
+    file.remove(temp_filename)
+
+    return(
+      list(
+        status = list(
+          status_code = 200,
+          code = NULL,
+          message = ''),
+        df = final_df)
+    )
+
+  } else{
+    pluto_get_experiment_data_paginated(experiment_id, table_type, limit, silent)
   }
 }
 

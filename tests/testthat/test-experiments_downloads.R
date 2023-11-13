@@ -23,19 +23,3 @@ test_that("pluto_download_assay_data downloads CSV", {
   expect_equal(nrow(df), expected_rows)
   file.remove(expected_filename)
 })
-
-test_that("pluto_read_sample works", {
-  skip_on_cran()
-  Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
-  expected_rows <- 11
-  df <- pluto_read_sample(experiment_id = TESTTHAT_EXPT_ID)
-  expect_equal(nrow(df), expected_rows)
-})
-
-test_that("pluto_read_assay works", {
-  skip_on_cran()
-  Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
-  expected_rows <- 15629
-  df <- pluto_read_assay(experiment_id = TESTTHAT_EXPT_ID)
-  expect_equal(nrow(df), expected_rows)
-})

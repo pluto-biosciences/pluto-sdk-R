@@ -14,6 +14,7 @@ BugReports: https://github.com/pluto-biosciences/pluto-sdk-R/issues
 Depends: 
     R (>= 4.0)
 Imports: 
+    htmlwidgets,
     httr2 (>= 0.2.3),
     tidyr
 Suggests: 

@@ -1,6 +1,37 @@
 # PROJECTS ENDPOINTS
 
-#' Get all experiments in a project in Pluto
+#' List all projects available in Pluto
+#'
+#' @description
+#' Fetches metadata for all projects the requester has permission to view
+#'
+#' @param limit Max number of projects to return, default 1000
+#' @param api_token Optional, otherwise the PLUTO_API_TOKEN environment variable will be used
+#' @returns API response object containing `count`, a count of the total projects,
+#' and `items`, an array of project objects
+#' @export
+pluto_list_projects <- function(limit = 1000, api_token = NULL){
+
+  if (is.null(api_token)){
+    api_token <- Sys.getenv('PLUTO_API_TOKEN')
+  }
+  validate_auth(api_token)
+
+  url_path <- paste0('https://api.pluto.bio/lab/projects/?limit=', limit)
+
+  req <- httr2::request(url_path)
+  resp <- req %>%
+    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
+    httr2::req_error(is_error = function(resp) FALSE) %>%
+    httr2::req_perform()
+
+  resp_obj <- httr2::resp_body_json(resp)
+
+  return(resp_obj)
+}
+
+
+#' List all experiments in a project in Pluto
 #'
 #' @description
 #' Fetches metadata for all experiments in a given project in Pluto
@@ -9,7 +40,7 @@
 #' @returns API response object containing `count`, a count of the total experiments
 #' in the project, and `items`, an array of experiments
 #' @export
-pluto_get_project_experiments <- function(project_id){
+pluto_list_project_experiments <- function(project_id){
 
   api_token <- Sys.getenv('PLUTO_API_TOKEN')
   validate_auth(api_token)
@@ -60,7 +91,7 @@ pluto_get_project_experiments <- function(project_id){
 #' @export
 pluto_read_project_experiments <- function(project_id){
 
-  project_response <- pluto_get_project_experiments(project_id)
+  project_response <- pluto_list_project_experiments(project_id)
   experiment_count <- project_response$count
   experiment_list <- project_response$items
 
