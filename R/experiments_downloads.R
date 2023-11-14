@@ -40,10 +40,31 @@ pluto_download_data <- function(experiment_id, table_type, dest_filename = NULL)
 
 }
 
+
+#' Download Pluto sample table
+#'
+#' @description
+#' Fetches the sample table for a given experiment and plot in Pluto and saves
+#' it as a CSV file
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param dest_filename Destination filename for CSV file (e.g. "PLX12345_sample_data.csv")
+#' @returns Saves the downloaded data to `dest_filename`
+#' @export
 pluto_download_sample_data <- function(experiment_id, dest_filename = NULL){
   pluto_download_data(experiment_id, table_type = "sample", dest_filename)
 }
 
+#' Download Pluto assay table
+#'
+#' @description
+#' Fetches the assay table for a given experiment and plot in Pluto and saves
+#' it as a CSV file
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param dest_filename Destination filename for CSV file (e.g. "PLX12345_assay_data.csv")
+#' @returns Saves the downloaded data to `dest_filename`
+#' @export
 pluto_download_assay_data <- function(experiment_id, dest_filename = NULL){
   pluto_download_data(experiment_id, table_type = "assay", dest_filename)
 }

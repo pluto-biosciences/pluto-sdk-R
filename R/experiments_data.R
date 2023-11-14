@@ -150,6 +150,7 @@ pluto_get_experiment_data_paginated <- function(experiment_id, table_type, limit
 #'    \tab \cr
 #'    \code{message} \tab Additional details \cr
 #' }
+#' @importFrom utils read.csv
 #' @export
 pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL,
                                       silent = FALSE, paginated = FALSE){

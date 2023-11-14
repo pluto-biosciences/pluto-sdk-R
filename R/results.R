@@ -111,8 +111,7 @@ pluto_read_results <- function(experiment_id, plot_id, silent = FALSE){
 #' @param experiment_id Pluto experiment ID
 #' @param plot_id Pluto plot ID
 #' @param dest_filename Destination filename for CSV file (e.g. "PLX12345_deg_table.csv")
-#' @returns Data.frame containing the requested data
-#' @importFrom utils read.csv
+#' @returns Saves the downloaded data to `dest_filename`
 #' @export
 #' @importFrom utils download.file
 pluto_download_results <- function(experiment_id, plot_id, dest_filename = NULL){

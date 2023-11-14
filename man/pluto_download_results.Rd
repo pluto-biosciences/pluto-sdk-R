@@ -14,7 +14,7 @@ pluto_download_results(experiment_id, plot_id, dest_filename = NULL)
 \item{dest_filename}{Destination filename for CSV file (e.g. "PLX12345_deg_table.csv")}
 }
 \value{
-Data.frame containing the requested data
+Saves the downloaded data to \code{dest_filename}
 }
 \description{
 Fetches the results table for a given experiment and plot in Pluto and saves
