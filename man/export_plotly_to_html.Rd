@@ -7,7 +7,7 @@
 export_plotly_to_html(plotly_obj, file_path)
 }
 \arguments{
-\item{plotly_obj}{PLotly object}
+\item{plotly_obj}{Plotly object}
 
 \item{file_path}{Path to the .html file to save}
 }

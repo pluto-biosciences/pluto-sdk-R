@@ -3,7 +3,7 @@
 #' @description
 #' Exports a plotly figure to an HTML file
 #'
-#' @param plotly_obj PLotly object
+#' @param plotly_obj Plotly object
 #' @param file_path Path to the .html file to save
 #' @export
 export_plotly_to_html <- function(plotly_obj, file_path) {

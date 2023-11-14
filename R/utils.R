@@ -91,3 +91,8 @@ json_to_df_transfomer <- function(response_json, type){
          arrow = arrow_response_to_df(response_json))
 
 }
+
+file_ext <- function(x){
+  pos <- regexpr("\\.([[:alnum:]]+)$", x)
+  ifelse(pos > -1L, substring(x, pos + 1L), "")
+}
