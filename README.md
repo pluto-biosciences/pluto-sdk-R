@@ -53,7 +53,7 @@ When using Pluto in one of your R projects, it is convenient to save your API to
 Copy the API token that you created on your Account page and store it in an environment variable called PLUTO_API_TOKEN. To do this, create an `.Renviron` file containing:
 
 ```
-// .Renviron
+// In .Renviron file
 
 PLUTO_API_TOKEN="<YOUR API TOKEN>"
 ```
@@ -98,10 +98,6 @@ Create a data frame from the assay data table of an Experiment.
 assay_data <- pluto_read_data(experiment_id = 'PLX140206', 
                               table_type = 'assay')
 
-# Paginating API calls to retrieve all 32544 rows in the assay data in batches of 10000 rows... 
-# Fetching rows 10001 to 20001... 
-# Fetching rows 20001 to 30001... 
-# Fetching rows 30001 to 32544...
 ```
 
 <img width="758" alt="assay_data_api" src="https://user-images.githubusercontent.com/4951228/200468369-058ef989-c880-4a8e-adac-9ca76f8bf5fc.png">
@@ -115,12 +111,9 @@ Visit our website to [learn more about the assays and analyses that Pluto suppor
 Use the plot ID in the pluto_read() function to fetch the underlying results:
 
 ```
-deg_table <- pluto_read(experiment_id = "PLX140206", 
-                        plot_id = "386b3bbf-fc86-4071-88c2-6340634cdc62",
-                        data_type = "results")
+deg_table <- pluto_read_results(experiment_id = "PLX140206", 
+                                plot_id = "386b3bbf-fc86-4071-88c2-6340634cdc62")
 
-# Paginating API calls to retrieve all 16954 rows in the assay data in batches of 10000 rows... 
-# Fetching rows 10001 to 20001...
 ```
 <img width="758" alt="deg_api" src="https://user-images.githubusercontent.com/4951228/200468566-36b2fd20-ee6c-429c-8d37-08a799927910.png">
 

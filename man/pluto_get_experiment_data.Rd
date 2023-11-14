@@ -8,7 +8,8 @@ pluto_get_experiment_data(
   experiment_id,
   table_type,
   limit = NULL,
-  silent = FALSE
+  silent = FALSE,
+  paginated = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ pluto_get_experiment_data(
 \item{limit}{Integer for max rows to fetch, or NULL to fetch all rows}
 
 \item{silent}{Boolean, whether to suppress console messages}
+
+\item{paginated}{Boolean, whether to make paginated request instead of downloading whole table, default FALSE}
 }
 \value{
 A list containing \code{df}, the data.frame of the requested data if it was successfully fetched, and \code{status}, a list containing information from the Pluto API request:\tabular{ll}{

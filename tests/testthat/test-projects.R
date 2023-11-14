@@ -1,7 +1,15 @@
+test_that("valid project response has correct structure", {
+  skip_on_cran()
+  Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
+  proj_resp <- pluto_list_projects()
+  expect_equal(proj_resp$count, 24)
+  expect_equal(length(proj_resp$items), proj_resp$count)
+})
+
 test_that("valid project experiment response has correct structure", {
   skip_on_cran()
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
-  expt_resp <- pluto_get_project_experiments(project_id = TESTTHAT_PROJ_ID)
+  expt_resp <- pluto_list_project_experiments(project_id = TESTTHAT_PROJ_ID)
   expect_equal(expt_resp$count, 2)
 })
 
