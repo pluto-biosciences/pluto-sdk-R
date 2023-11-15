@@ -1,0 +1,13 @@
+pandoc: 2.19.2
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  authentication: authentication.html
+  data_integration: data_integration.html
+  get_started: get_started.html
+  rnaseq_recipes: rnaseq_recipes.html
+last_built: 2023-11-15T23:33Z
+urls:
+  reference: https://pluto-biosciences.github.io/pluto-sdk-R/reference
+  article: https://pluto-biosciences.github.io/pluto-sdk-R/articles
+
