@@ -19,7 +19,12 @@ Imports:
     tidyr
 Suggests: 
     httptest2,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    plotly,
+    knitr,
+    rmarkdown,
+    markdown
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

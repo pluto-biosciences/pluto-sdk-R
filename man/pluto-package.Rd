@@ -13,6 +13,7 @@ Useful links:
 \itemize{
   \item \url{https://pluto.bio}
   \item \url{https://github.com/pluto-biosciences/pluto-sdk-R}
+  \item \url{https://pluto-biosciences.github.io/pluto-sdk-R/}
   \item Report bugs at \url{https://github.com/pluto-biosciences/pluto-sdk-R/issues}
 }
 

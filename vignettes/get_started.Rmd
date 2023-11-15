@@ -1,7 +1,9 @@
 ---
 title: "Getting started with Pluto"
-output: html_document
-date: "2023-11-14"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Getting started with Pluto}
 ---
 
 ## Quick start guide
@@ -15,28 +17,12 @@ library(pluto)
 pluto_login("<YOUR API TOKEN>")
 ```
 
-Read the data from a public experiment, for example:
-
-```{r plotly_example, message = FALSE}
-
-library(pluto)
-library(plotly)
-
-experiment_id <- "PLX166127"
-
-# Fetch a differentially expressed gene table
-deg_female <- pluto_read_results(experiment_id = experiment_id,
-                                 plot_id = "e528582f-ef51-4a25-a54c-224fa98e95c4")
-
-head(deg_female)
-
-```
 
 ### Fetch project information from Pluto
 
 Create a data frame containing summary information (e.g. Pluto ID, name, created_by) for each Experiment in the Project.
 
-```{r}
+```{r, eval = F}
 all_project_experiments <- pluto_read_project_experiments(project_id = 'PLXP14223')
 ```
 
@@ -47,7 +33,7 @@ all_project_experiments <- pluto_read_project_experiments(project_id = 'PLXP1422
 
 Create a data frame from the sample data table of an Experiment.
 
-```{r}
+```{r, eval = F}
 
 sample_data <- pluto_read_data(experiment_id = 'PLX140206', 
                                table_type = 'sample')
@@ -61,7 +47,7 @@ sample_data <- pluto_read_data(experiment_id = 'PLX140206',
 
 Create a data frame from the assay data table of an Experiment.
 
-```{r}
+```{r, eval = F}
 assay_data <- pluto_read_data(experiment_id = 'PLX140206', 
                               table_type = 'assay')
 
@@ -77,7 +63,7 @@ Visit our website to [learn more about the assays and analyses that Pluto suppor
 
 Use the plot ID in the pluto_read() function to fetch the underlying results:
 
-```{r}
+```{r, eval = F}
 deg_table <- pluto_read_results(experiment_id = "PLX140206", 
                                 plot_id = "386b3bbf-fc86-4071-88c2-6340634cdc62")
 

@@ -1,7 +1,9 @@
 ---
 title: "Authenticating with Pluto"
-output: html_document
-date: "2023-11-14"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Authenticating with Pluto}
 ---
 
 ## Create your API token
@@ -25,7 +27,7 @@ You can "log in" to Pluto interactively by providing your API token to the `plut
 
 To save your API key to the current environment so it can be used in subsequent API calls _during the current session_, simply provide the API key:
 
-```
+```{r, eval = F}
 library(pluto)
 
 pluto_login("<Your API key>")
