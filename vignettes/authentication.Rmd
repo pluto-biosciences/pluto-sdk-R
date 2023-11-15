@@ -1,0 +1,54 @@
+---
+title: "Authenticating with Pluto"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Authenticating with Pluto}
+---
+
+## Create your API token
+
+If you are accessing data programmatically for the first time, you'll need to generate a new API token. Navigate to your Account page in Pluto and click the "+ API token" button.
+
+![account_api_1](https://user-images.githubusercontent.com/4951228/200467418-beaab6f8-f905-4915-8572-08e527604a7e.png)
+
+A new API token will be generated, and can then be copied or viewed.
+
+![account_api_2](https://user-images.githubusercontent.com/4951228/200467423-abee2baf-1f9b-41bb-8628-e7ee2d105603.png)
+
+This API token can be used to fetch data programmatically using this R package. It will respect the permissions that you have in Pluto, so it can only be used to access Projects and Experiments that you have permission to view.
+
+
+## Store Pluto credentials
+
+### Option 1: Provide API token interactively / at run-time
+
+You can "log in" to Pluto interactively by providing your API token to the `pluto_login` helper function.
+
+To save your API key to the current environment so it can be used in subsequent API calls _during the current session_, simply provide the API key:
+
+```{r, eval = F}
+library(pluto)
+
+pluto_login("<Your API key>")
+```
+
+You can also use `save_Renviron = T` to save your API key to the current environment AND save it to your `.Renviron` file so that it will be referenced in future sessions. This is a shortcut that achieves the same outcome as the manual Option #2 described below.
+
+```
+pluto_login("<Your API key>", save_Renviron = T)
+```
+
+### Option 2: Use the `PLUTO_API_TOKEN` environment variable
+
+When using Pluto in one of your R projects, it is convenient to save your API token to an environment variable so that it can be easily referenced when running scripts in that project.
+
+Copy the API token that you created on your Account page and store it in an environment variable called PLUTO_API_TOKEN. To do this, create an `.Renviron` file containing:
+
+```
+// In .Renviron file
+
+PLUTO_API_TOKEN="<YOUR API TOKEN>"
+```
+
+Save the file, and restart your R session to apply changes. To confirm that your API token is in your active R environment at any time, you can run `Sys.getenv("PLUTO_API_TOKEN")`.

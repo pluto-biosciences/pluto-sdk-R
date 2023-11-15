@@ -1,0 +1,15 @@
+---
+title: "Getting started with data integration"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Getting started with data integration}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## What is Pluto?
+
+This is where info on combining multiple experiments will go
