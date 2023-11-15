@@ -1,0 +1,13 @@
+---
+title: "Getting started with data integration"
+output: html_document
+date: "2023-11-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## What is Pluto?
+
+This is where info on combining multiple experiments will go
