@@ -1,10 +1,7 @@
 # EXPERIMENTS DATA ENDPOINTS
 
-pluto_get_experiment_data_paginated <- function(experiment_id, table_type, limit = NULL,
-                                                silent = FALSE){
-
-  api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  validate_auth(api_token)
+pluto_get_experiment_data_paginated <- function(experiment_id, table_type,
+                                                limit = NULL, silent = FALSE){
 
   page_size <- 10000
 
@@ -19,27 +16,16 @@ pluto_get_experiment_data_paginated <- function(experiment_id, table_type, limit
   }
 
   if (!is.null(limit)){
-    url_path <- paste0('https://api.pluto.bio/lab/experiments/',
+    url_path <- paste0('lab/experiments/',
                        experiment_id, endpoint, '?limit=', limit)
   } else{
-    url_path <- paste0('https://api.pluto.bio/lab/experiments/',
+    url_path <- paste0('lab/experiments/',
                        experiment_id, endpoint, '?limit=', page_size)
   }
 
-  req <- httr2::request(url_path)
-  resp <- req %>%
-    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
-    # The line below is required to override httr2's default behavior of
-    # automatically converting HTTP errors into R errors
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
+  resp_obj <- pluto_GET(url_path)
 
-  # Preview JSON response
-  #resp %>% resp_raw()
-
-  resp_obj <- httr2::resp_body_json(resp)
-
-  if (resp$status_code == 200){
+  if (resp_obj$response_status_code == 200){
 
     # Calculate whether we need to paginate
     total_count <- resp_obj$count
@@ -79,6 +65,9 @@ pluto_get_experiment_data_paginated <- function(experiment_id, table_type, limit
                                       experiment_id, endpoint,
                                       '?limit=', page_size,
                                       '&offset=', offsets)
+        if (is.null(api_token)){
+          api_token <- Sys.getenv('PLUTO_API_TOKEN')
+        }
         reqs <- lapply(paginated_url_paths, function(u){
           httr2::request(u) %>%
             httr2::req_headers(Authorization = paste0('Token ', api_token))
@@ -112,20 +101,14 @@ pluto_get_experiment_data_paginated <- function(experiment_id, table_type, limit
     }
     return(
       list(
-        status = list(
-          status_code = resp$status_code,
-          code = resp_obj$code,
-          message = resp_obj$message),
+        status_code = resp_obj$response_status_code,
         df = final_df)
     )
 
   } else {
     return(
       list(
-        status = list(
-          status_code = resp$status_code,
-          code = resp_obj$code,
-          message = resp_obj$message),
+        status_code = resp_obj$response_status_code,
         df = NULL)
     )
   }
@@ -172,10 +155,7 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL,
 
     return(
       list(
-        status = list(
-          status_code = 200,
-          code = NULL,
-          message = ''),
+        status_code = 200,
         df = final_df)
     )
 
@@ -232,4 +212,59 @@ pluto_read_sample_data <- function(experiment_id, limit = NULL, silent = FALSE){
 #' @export
 pluto_read_assay_data <- function(experiment_id, limit = NULL, silent = FALSE){
   return(pluto_read_data(experiment_id, table_type = "assay", limit, silent))
+}
+
+
+#' @importFrom utils download.file
+pluto_download_data <- function(experiment_id, table_type, dest_filename = NULL){
+
+  if (table_type == 'sample'){
+    endpoint <- '/sample-data/'
+
+  } else if (table_type == 'assay'){
+    endpoint <- '/assay-data/'
+
+  } else{
+    stop("Unsupported table_type Supported data table types are 'sample', 'assay'.")
+  }
+
+  if (is.null(dest_filename)){
+    dest_filename <- paste0(experiment_id, "_", table_type, "_data.csv")
+  }
+
+  url_path <- paste0("lab/experiments/", experiment_id,
+                     endpoint, "download/?filename=", dest_filename)
+
+  pluto_GET_download(url_path, dest_filename)
+
+}
+
+
+#' Download Pluto sample table
+#'
+#' @description
+#' Fetches the sample table for a given experiment and plot in Pluto and saves
+#' it as a CSV file
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param dest_filename Destination filename for CSV file (e.g. "PLX12345_sample_data.csv")
+#' @returns Saves the downloaded data to `dest_filename`
+#' @export
+pluto_download_sample_data <- function(experiment_id, dest_filename = NULL){
+  pluto_download_data(experiment_id, table_type = "sample", dest_filename)
+}
+
+
+#' Download Pluto assay table
+#'
+#' @description
+#' Fetches the assay table for a given experiment and plot in Pluto and saves
+#' it as a CSV file
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param dest_filename Destination filename for CSV file (e.g. "PLX12345_assay_data.csv")
+#' @returns Saves the downloaded data to `dest_filename`
+#' @export
+pluto_download_assay_data <- function(experiment_id, dest_filename = NULL){
+  pluto_download_data(experiment_id, table_type = "assay", dest_filename)
 }

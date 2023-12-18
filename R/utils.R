@@ -16,6 +16,14 @@ quiet_message <- function(silent, message){
   }
 }
 
+null_to_na <- function(value){
+  if (is.null(value)){
+    return(NA)
+  } else{
+    return(value)
+  }
+}
+
 is_valid_api_key <- function(api_key){
 
   # Check that API key is alphanumeric

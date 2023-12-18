@@ -23,6 +23,23 @@ export_plotly_to_html <- function(plotly_obj, file_path) {
 }
 
 
+#' List all plots in an experiment in Pluto
+#'
+#' @description
+#' Fetches metadata for all plots in a given experiment in Pluto
+#'
+#' @param experiment_id Pluto experiment ID (e.g. PLXP02355)
+#' @returns API response object containing `count`, a count of the total plots
+#' in the experiment, and `items`, an array of plots
+#' @export
+pluto_get_experiment_plots <- function(experiment_id){
+
+  url_path <- paste0('lab/experiments/', experiment_id, '/plots')
+  return(pluto_GET(url_path))
+
+}
+
+
 #' Get information about Pluto plot
 #'
 #' @description
@@ -50,30 +67,20 @@ export_plotly_to_html <- function(plotly_obj, file_path) {
 #'    \code{message} \tab Additional details \cr
 #' }
 #' @export
-pluto_get_plot_details <- function(experiment_id, plot_id, silent = FALSE){
-
-  api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  validate_auth(api_token)
+pluto_get_plot <- function(experiment_id, plot_id, silent = FALSE){
 
   if (is.null(plot_id)){
     stop("plot_id param must be provided to fetch results")
-
   } else{
     endpoint = paste0('/plots/', plot_id)
   }
 
-  url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                     experiment_id, endpoint)
+  url_path <- paste0('lab/experiments/',
+                     experiment_id, endpoint, '/')
 
-  req <- httr2::request(url_path)
-  resp <- req %>%
-    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
+  resp_obj <- pluto_GET(url_path)
 
-  resp_obj <- httr2::resp_body_json(resp)
-
-  if (resp$status_code == 200){
+  if (resp_obj$response_status_code == 200){
 
     plot_title <- ifelse(resp_obj$display$plot_title == "",
                          resp_obj$analysis$name,
@@ -81,10 +88,7 @@ pluto_get_plot_details <- function(experiment_id, plot_id, silent = FALSE){
 
     return(
       list(
-        status = list(
-          status_code = resp$status_code,
-          code = resp_obj$code,
-          message = resp_obj$message),
+        status_code = resp_obj$response_status_code,
         plot_details = list(
           analysis_type = resp_obj$analysis_type,
           analysis_status = resp_obj$analysis$pipeline_status,
@@ -96,10 +100,7 @@ pluto_get_plot_details <- function(experiment_id, plot_id, silent = FALSE){
   } else {
     return(
       list(
-        status = list(
-          status_code = resp$status_code,
-          code = resp_obj$code,
-          message = resp_obj$message),
+        status_code = resp_obj$response_status_code,
         plot_details = NULL)
     )
   }
