@@ -17,7 +17,7 @@ pluto_get_experiment_data_paginated <- function(experiment_id, table_type,
 
   if (!is.null(limit)){
     url_path <- paste0('lab/experiments/',
-                       experiment_id, endpoint, '?limit=', limit)
+                       experiment_id, endpoint, '?limit=', format(limit, scientific=F))
   } else{
     url_path <- paste0('lab/experiments/',
                        experiment_id, endpoint, '?limit=', page_size)
@@ -215,7 +215,6 @@ pluto_read_assay_data <- function(experiment_id, limit = NULL, silent = FALSE){
 }
 
 
-#' @importFrom utils download.file
 pluto_download_data <- function(experiment_id, table_type, dest_filename = NULL){
 
   if (table_type == 'sample'){
@@ -235,7 +234,7 @@ pluto_download_data <- function(experiment_id, table_type, dest_filename = NULL)
   url_path <- paste0("lab/experiments/", experiment_id,
                      endpoint, "download/?filename=", dest_filename)
 
-  pluto_GET_download(url_path, dest_filename)
+  pluto_download(url_path, dest_filename)
 
 }
 

@@ -9,9 +9,9 @@
 #' @returns API response object containing `count`, a count of the total experiments
 #' and `items`, an array of experiment objects
 #' @export
-pluto_get_experiments <- function(limit = 1000){
+pluto_get_experiments_all <- function(limit = 1000){
 
-  url_path <- paste0('lab/experiments/?limit=', limit)
+  url_path <- paste0('lab/experiments/?limit=', format(limit, scientific=F))
   return(pluto_GET(url_path))
 
 }

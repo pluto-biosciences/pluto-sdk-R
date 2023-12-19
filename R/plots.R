@@ -59,13 +59,7 @@ pluto_get_experiment_plots <- function(experiment_id){
 #'    \tab \cr
 #'    \code{plot_title} \tab Plot title \cr
 #'  }
-#'  and `status`, a list containing information from the Pluto API request:\tabular{ll}{
-#'    \code{status_code} \tab HTTP status code (e.g. 200, 400, 401) \cr
-#'    \tab \cr
-#'    \code{code} \tab String, computer-friendly code for response (e.g. `authentication_failed`) \cr
-#'    \tab \cr
-#'    \code{message} \tab Additional details \cr
-#' }
+#' and `response_status_code`, the http response code for the API response
 #' @export
 pluto_get_plot <- function(experiment_id, plot_id, silent = FALSE){
 
@@ -88,7 +82,7 @@ pluto_get_plot <- function(experiment_id, plot_id, silent = FALSE){
 
     return(
       list(
-        status_code = resp_obj$response_status_code,
+        response_status_code = resp_obj$response_status_code,
         plot_details = list(
           analysis_type = resp_obj$analysis_type,
           analysis_status = resp_obj$analysis$pipeline_status,
@@ -100,7 +94,7 @@ pluto_get_plot <- function(experiment_id, plot_id, silent = FALSE){
   } else {
     return(
       list(
-        status_code = resp_obj$response_status_code,
+        response_status_code = resp_obj$response_status_code,
         plot_details = NULL)
     )
   }

@@ -61,7 +61,7 @@ test_that("paginated no limit works", {
   skip_on_cran()
   #skip(message = "Skipping long-running pagination integration test")
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
-  expected_rows <- 15892
+  expected_rows <- NUM_EXPT_TARGETS_RNASEQ
   assay_data <- pluto_get_experiment_data(experiment_id = TESTTHAT_EXPT_ID_RNASEQ,
                                           table_type = "assay",
                                           silent = F)
@@ -99,7 +99,7 @@ test_that("pluto_read_data no limit works", {
   skip_on_cran()
   #skip(message = "Skipping long-running pagination integration test")
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
-  expected_rows <- 15892
+  expected_rows <- NUM_EXPT_TARGETS_RNASEQ
   assay_data <- pluto_read_data(experiment_id = TESTTHAT_EXPT_ID_RNASEQ,
                                 table_type = "assay",
                                 silent = F)
@@ -111,7 +111,7 @@ test_that("pluto_read_data no limit works", {
 test_that("pluto_download_sample_data downloads CSV", {
   skip_on_cran()
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
-  expected_rows <- 153
+  expected_rows <- NUM_EXPT_SAMPLES_RNASEQ
   expected_filename <- "sample_foo.csv"
   pluto_download_sample_data(experiment_id = TESTTHAT_EXPT_ID_RNASEQ,
                              dest_filename = expected_filename)
@@ -124,7 +124,7 @@ test_that("pluto_download_sample_data downloads CSV", {
 test_that("pluto_download_assay_data downloads CSV", {
   skip_on_cran()
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
-  expected_rows <- 15892
+  expected_rows <- NUM_EXPT_TARGETS_RNASEQ
   expected_filename <- "assay_foo.csv"
   pluto_download_assay_data(experiment_id = TESTTHAT_EXPT_ID_RNASEQ,
                             dest_filename = expected_filename)

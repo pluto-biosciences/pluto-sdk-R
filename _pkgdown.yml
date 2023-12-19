@@ -3,56 +3,69 @@ url: https://pluto-biosciences.github.io/pluto-sdk-R/
 template:
   bootstrap: 5
 
-navbar:
-  title: "Seurat"
-  left:
-    - text: "Credentials"
-      href: articles/authentication.html
-    - text: "Get started"
-      href: articles/get_started.html
-    - text: "Vignettes"
-      menu:
-        - text: Common recipes by assay type
-        - text: "RNA-seq"
-          href: articles/rnaseq_recipes.html
-        - text: -------
-        - text: Advanced analyses
-        - text: "Introduction to multi-experiment integration"
-          href: articles/data_integration.html
-    - text: "Reference"
-      href: reference/index.html
-    - text: Help Center
-      href: "https://help.pluto.bio"
+home:
+
+  navbar:
+    title: "Pluto R Package"
+    left:
+      - text: "Credentials"
+        href: articles/authentication.html
+      - text: "Get started"
+        menu:
+          - text: "Quick start guide"
+            href: articles/get_started.html
+          - text: "Introduction to the Pluto data models"
+            href: articles/get_started.html
+      - text: "Vignettes"
+        menu:
+          - text: Common recipes by assay type
+          - text: "RNA-seq"
+            href: articles/rnaseq_recipes.html
+          - text: -------
+          - text: Advanced analyses
+          - text: "Introduction to multi-experiment integration"
+            href: articles/data_integration.html
+      - text: "Reference"
+        href: reference/index.html
+      - text: Help Center
+        href: "https://help.pluto.bio"
+
+  sidebar:
+    structure: [links, license, community, citation, authors, dev]
 
   right:
     - icon: fa-home
-      href: ../
+      href: https://pluto.bio
     - icon: fa-github
       href: https://github.com/pluto-biosciences/pluto-sdk-r
 
-reference:
-- title: "Connecting to Pluto"
-  desc: >
-    Functions for providing your Pluto credentials
-  contents:
-  - pluto_login
-  - pluto_is_logged_in
-  - pluto_logout
-- title: "Reading data frames"
-  desc: "Functions for reading Pluto data into a data.frame"
-  contents:
-  - starts_with("pluto_read")
-- title: "Downloading CSVs"
-  desc: "Functions for saving Pluto data into a CSV file"
-  contents:
-  - starts_with("pluto_download")
-- title: "Pushing analyses back to Pluto"
-  desc: "Functions for pushing plots and tables back into a Pluto experiment"
-  contents:
-  - matches("export_plotly_to_html")
-  - matches("pluto_add_experiment_plot")
-- title: "API interactions"
-  desc: "Functions returning a JSON-like response"
-  contents:
-  - starts_with("pluto_list")
-  - starts_with("pluto_get")
+  reference:
+    - title: "Connecting to Pluto"
+      desc: "Functions for providing your Pluto credentials"
+      contents:
+        - pluto_login
+        - pluto_is_logged_in
+        - pluto_logout
+    - title: "Reading data frames"
+      desc: "Functions for reading Pluto data into a data.frame"
+      contents:
+        - starts_with("pluto_read")
+    - title: "Downloading CSVs"
+      desc: "Functions for saving Pluto data to a CSV file"
+      contents:
+        - starts_with("pluto_download")
+    - title: "Uploading to Pluto"
+      desc: "Functions for pushing plots and tables back into a Pluto experiment"
+      contents:
+        - matches("export_plotly_to_html")
+        - matches("pluto_add_experiment_plot")
+    - title: "API interactions"
+      desc: "Functions returning a full, JSON-like response"
+      contents:
+        - starts_with("pluto_get")
+    - title: internal
+      contents:
+        - pluto_GET
+        - pluto_GET_download
+        - pluto_POST
+        - pluto_POST_upload

@@ -10,9 +10,9 @@
 #' @returns API response object containing `count`, a count of the total projects,
 #' and `items`, an array of project objects
 #' @export
-pluto_get_projects <- function(limit = 1000){
+pluto_get_projects_all <- function(limit = 1000){
 
-  url_path <- paste0('lab/projects/?limit=', limit)
+  url_path <- paste0('lab/projects/?limit=', format(limit, scientific=F))
   return(pluto_GET(url_path))
 
 }

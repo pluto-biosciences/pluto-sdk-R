@@ -25,13 +25,7 @@ A list containing \code{plot_details}, a list of information about the analysis 
 \tab \cr
 \code{plot_title} \tab Plot title \cr
 }
-and \code{status}, a list containing information from the Pluto API request:\tabular{ll}{
-\code{status_code} \tab HTTP status code (e.g. 200, 400, 401) \cr
-\tab \cr
-\code{code} \tab String, computer-friendly code for response (e.g. \code{authentication_failed}) \cr
-\tab \cr
-\code{message} \tab Additional details \cr
-}
+and \code{response_status_code}, the http response code for the API response
 }
 \description{
 Fetches the details for a given plot in Pluto

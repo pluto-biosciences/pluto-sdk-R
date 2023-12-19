@@ -11,12 +11,9 @@ pluto_GET_download(url_path, dest_filename, api_token = NULL)
 
 \item{dest_filename}{Filename for the downloaded file}
 
-\item{api_token}{Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used}
-}
-\value{
-API response object containing \code{count}, a count of the total experiments
-in the project, and \code{items}, an array of experiments
+\item{api_token}{Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used
+Downloads the file}
 }
 \description{
-Fetches metadata for all experiments in a given project in Pluto
+Downloads a file via signed url
 }

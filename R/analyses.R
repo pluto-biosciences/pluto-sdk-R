@@ -7,29 +7,13 @@
 #'
 #' @param experiment_id Pluto experiment ID
 #' @param limit Max number of analyses to return, default 1000
-#' @param api_token Optional, otherwise the PLUTO_API_TOKEN environment variable will be used
 #' @returns API response object containing `count`, a count of the total analyses,
 #' and `items`, an array of analysis objects
 #' @export
-pluto_list_experiment_analyses <- function(experiment_id, limit = 1000, api_token = NULL){
+pluto_get_experiment_analyses <- function(experiment_id, limit = 1000){
 
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  }
-  validate_auth(api_token)
-
-  url_path <- paste0('https://api.pluto.bio/lab/experiments/', experiment_id,
-                      '/plots/?limit=', limit)
-
-  req <- httr2::request(url_path)
-  resp <- req %>%
-    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
-
-  resp_obj <- httr2::resp_body_json(resp)
-
-  return(resp_obj)
+  url_path <- paste0('lab/experiments/', experiment_id, '/plots/?limit=', format(limit, scientific=F))
+  return(pluto_GET(url_path))
 
 }
 
@@ -57,7 +41,7 @@ pluto_list_experiment_analyses <- function(experiment_id, limit = 1000, api_toke
 #' @export
 pluto_read_experiment_analyses <- function(experiment_id){
 
-  analyses_response <- pluto_list_experiment_analyses(experiment_id)
+  analyses_response <- pluto_get_experiment_analyses(experiment_id)
   analyses_count <- analyses_response$count
   analyses_list <- analyses_response$items
 
@@ -93,284 +77,197 @@ pluto_read_experiment_analyses <- function(experiment_id){
 }
 
 
-# Upload a file to Pluto
-upload_file <- function(experiment_id, analysis_id, file_path, api_token = NULL) {
+#' Internal create new external analysis
+#'
+#' @description
+#' Creates a new external analysis on an experiment
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param analysis_name Name for the analysis
+#' @returns API response for the created analysis object containing `uuid`,
+#' `analysis_type`, `category`, `results`, and `response_status_code`
+create_analysis <- function(experiment_id, analysis_name = ""){
 
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  }
-  validate_auth(api_token)
+  url_path <- paste0('lab/experiments/', experiment_id, '/analyses/')
 
-  url_path <- paste0("https://api.pluto.bio/lab/experiments/",
-                     experiment_id, "/upload-sessions/")
-
-  file_name <- basename(file_path)
-  file_ext <- file_ext(file_path)
-  file_size <- file.info(file_path)$size
-
-  upload_data <- list(
-    analysis_type = "external",
-    origin = "R",
-    filename = paste0(analysis_id, "--", file_name),
-    data_type = "external",
-    file_type = file_ext,
-    file_size = file_size
+  body_data <- list(
+    analysis_type = "external"
   )
 
-  req <- httr2::request(url_path) %>% httr2::req_method("POST") %>%
-    httr2::req_headers(Authorization = paste0("Token ", api_token)) %>%
-    httr2::req_body_json(upload_data)
+  resp_obj <- pluto_POST(url_path, body_data)
 
-  resp <- req %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
+  # NOTE: At this point, you won't yet be able to see the newly created analysis
+  # in the response from pluto_get_experiment_analyses(experiment_id), only in the database itself
 
-  resp_obj <- httr2::resp_body_json(resp)
-  session_uri <- resp_obj$session_url
-  session_uuid <- resp_obj$uuid
-  experiment_file <- resp_obj$file
+  if (resp_obj$response_status_code == 200){
+    return(resp_obj)
 
-  # Initial PUT request to get uploaded range
-  req <- httr2::request(session_uri) %>% httr2::req_method("PUT") %>%
-    httr2::req_headers("Content-Length" = "0") %>%
-    httr2::req_headers("Content-Range" = "bytes */*")
-
-  resp <- req %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
-
-  start_byte <- 0
-
-  # Read file data starting from start_byte
-  con <- file(file_path, "rb")
-  seek(con, start_byte)
-  file_data <- readBin(con, "raw", file_size - start_byte)
-  close(con)
-
-  # Final PUT request to upload the file
-  total_size <- file_size
-  req <- httr2::request(session_uri) %>% httr2::req_method("PUT") %>%
-    httr2::req_headers("Content-Length" = as.character(length(file_data))) %>%
-    httr2::req_headers("Content-Range" = paste0("bytes ", start_byte, "-", total_size-1, "/", total_size)) %>%
-    httr2::req_body_raw(file_data)
-
-  resp <- req %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
-
-  resp_obj <- httr2::resp_body_json(resp)
-
-  # How I debugged:
-  # resp_obj <- httr2::resp_body_string(resp)
-  # Invalid request.  According to the Content-Range header, the upload offset is 1 byte(s), which exceeds already uploaded size of 0 byte(s).
-
-  if (resp$status_code %in% c(200, 201)) {
-    message("Upload successful!")
-    return(list(
-      session_uri = session_uri,
-      session_uuid = session_uuid,
-      experiment_file = experiment_file,
-      resp_obj = resp_obj
-    ))
-  } else {
-    stop(paste0("Upload failed with status code: ", resp$status_code))
-  }
-
-}
-
-
-create_analysis <- function(experiment_id, file_path, api_token = NULL){
-
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  }
-  validate_auth(api_token)
-
-  url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                     experiment_id, '/analyses/')
-
-  req <- httr2::request(url_path) %>% httr2::req_method("POST") %>%
-    httr2::req_headers(Authorization = paste0("Token ", api_token)) %>%
-    httr2::req_body_json(list(
-      analysis_type = "external",
-      origin = "R",
-      filename = file_path,
-      data_type = "external"
-    ))
-
-  resp <- req %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
-
-  resp_obj <- httr2::resp_body_json(resp)
-
-  if (resp$status_code == 200){
-    return(list(analysis_id = resp_obj$uuid,
-                resp_obj = resp_obj))
   } else{
-    stop(paste0('Response: ', resp$status_code))
+    stop(paste0('Response: ', resp_obj$response_status_code))
   }
 
 }
 
 
-create_plot_display <- function(experiment_id, plot_methods, api_token = NULL){
+#' Internal create new external plot display
+#'
+#' @description
+#' Creates a new external plot display on an experiment
+#'
+#' @param experiment_id Pluto experiment ID
+#' @returns API response for the created plot object containing plot shell `uuid`,
+#' `display$uuid`, and `response_status_code`
+create_plot_shell <- function(experiment_id){
 
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  }
-  validate_auth(api_token)
+  url_path <- paste0('lab/experiments/', experiment_id, '/plots/')
 
-  url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                     experiment_id, '/plots/')
+  body_data <- list(
+    analysis_type = "external",
+    status = "published"
+  )
 
-  req <- httr2::request(url_path) %>% httr2::req_method("POST") %>%
-    httr2::req_headers(Authorization = paste0("Token ", api_token)) %>%
-    httr2::req_body_json(list(
-      analysis_type = "external",
-      display_type = "html",
-      status = "published",
-      methods = plot_methods
-    ))
+  resp_obj <- pluto_POST(url_path, body_data)
 
-  resp <- req %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
+  if (resp_obj$response_status_code == 201){
+    return(resp_obj)
 
-  resp_obj <- httr2::resp_body_json(resp)
-
-  if (resp$status_code == 200 | resp$status_code == 201){
-    return(list(plot_id = resp_obj$uuid,
-                display_id = resp_obj$display$uuid,
-                resp_obj = resp_obj))
   } else{
-    stop(paste0('Response: ', resp$status_code))
+    stop(paste0('Response: ', resp_obj$response_status_code))
   }
 
 }
 
-link_analysis <- function(experiment_id, analysis_id, plot_id, display_id, api_token = NULL){
 
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  }
-  validate_auth(api_token)
+#' Internal link plot shell with an analysis & display
+#'
+#' @description
+#' Links a plot shell to a created analysis object and display object
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param analysis_id Pluto analysis uuid
+#' @param plot_id Pluto plot shell uuid
+#' @param display_id Pluto display uuid
+#' @returns API response for the linked plot object containing the plot shell,
+#' analysis, and display fields
+link_analysis <- function(experiment_id, analysis_id, plot_id, display_id){
 
-  url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                     experiment_id, '/plots/', plot_id, '/link-analysis/')
+  url_path <- paste0('lab/experiments/', experiment_id,
+                     '/plots/', plot_id, '/link-analysis/')
 
-  req <- httr2::request(url_path) %>% httr2::req_method("POST") %>%
-    httr2::req_headers(Authorization = paste0("Token ", api_token)) %>%
-    httr2::req_body_json(list(
-      analysis_id = analysis_id,
-      display_id = display_id
-    ))
+  body_data <- list(
+    analysis_id = analysis_id,
+    display_id = display_id
+  )
 
-  resp <- req %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
+  resp_obj <- pluto_POST(url_path, body_data)
 
-  resp_obj <- httr2::resp_body_json(resp)
-
-  if (resp$status_code == 200){
+  if (resp_obj$response_status_code == 200 | resp_obj$response_status_code == 201){
 
     return(list(analysis_id = resp_obj$analysis$uuid,
                 plot_id = resp_obj$plot$uuid,
                 display_id = resp_obj$display$uuid,
-                resp_obj = resp_obj))
+                plot_obj = resp_obj))
   } else{
-    stop(paste0('Response: ', resp$status_code))
+    stop(paste0('Response: ', resp_obj$response_status_code))
   }
 }
 
+#' Internal update display
+#'
+#' @description
+#' Updates a display with an HTML/image file and corresponding methods
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param analysis_id Pluto analysis uuid
+#' @param plot_id Pluto plot shell uuid
+#' @param display_id Pluto display uuid
+#' @param display_methods Optional, text methods describing the plot
+#' @param uploaded_file Optional, experiment file object to upload to the display
+#' @returns API response for the linked plot object containing the plot shell,
+#' analysis, and display fields
+update_plot_display <- function(experiment_id, analysis_id, plot_id, display_id,
+                           display_methods = NULL, uploaded_file = NULL){
 
-update_plot_display <- function(experiment_id, analysis_id, display_id, plot_id,
-                                plot_methods, file_id, api_token = NULL){
+  # Add the methods to the display
+  url_path <- paste0('lab/experiments/', experiment_id,
+                     '/plots/', plot_id, '/displays/', display_id, '/')
 
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
+  body_data <- list(
+    analysis_id = analysis_id,
+    display_id = display_id,
+    display_type = "external"
+  )
+
+  # Add optional fields
+  if (!is.null(display_methods)){
+    body_data$methods = display_methods
   }
-  validate_auth(api_token)
+  if (!is.null(file_id)){
+    body_data$figure_file = uploaded_file
+  }
 
-  # Update the display
-  url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                     experiment_id, '/plots/', plot_id, '/displays/', display_id, '/')
+  display_resp_obj <- pluto_PUT(url_path, body_data)
 
-  req <- httr2::request(url_path) %>% httr2::req_method("PUT") %>%
-    httr2::req_headers(Authorization = paste0("Token ", api_token)) %>%
-    httr2::req_body_json(list(
+  if (display_resp_obj$response_status_code == 200){
+
+    # Add the analysis to the plot shell
+    url_path <- paste0('lab/experiments/', experiment_id,
+                       '/plots/', plot_id, '/')
+
+    body_data <- list(
       analysis_id = analysis_id,
-      display_id = display_id,
-      methods = plot_methods,
-      display_type = 'external',
-      figure_file = file_id
-    ))
+      display_id = display_id
+    )
 
-  resp <- req %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
+    plot_resp_obj <- pluto_PUT(url_path, body_data)
 
-  resp_obj <- httr2::resp_body_json(resp)
-
-  if (resp$status_code == 200){
-
-    # Update the plot
-    url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                       experiment_id, '/plots/', plot_id, '/')
-
-    req <- httr2::request(url_path) %>% httr2::req_method("PUT") %>%
-      httr2::req_headers(Authorization = paste0("Token ", api_token)) %>%
-      httr2::req_body_json(list(
-        analysis_id = analysis_id,
-        display_id = display_id
-      ))
-
-    resp <- req %>%
-      httr2::req_error(is_error = function(resp) FALSE) %>%
-      httr2::req_perform()
-
-    resp_obj <- httr2::resp_body_json(resp)
-
-    if (resp$status_code == 200){
-      return(resp_obj)
-
+    if (plot_resp_obj$response_status_code == 200){
+      return(plot_resp_obj)
     } else{
-      stop(paste0('Response: ', resp$status_code))
+      stop(paste0('Response: ', plot_resp_obj$response_status_code))
     }
 
   } else{
-    stop(paste0('Response: ', resp$status_code))
+    stop(paste0('Response: ', display_resp_obj$response_status_code))
   }
 
 }
 
 
-update_analysis <- function(experiment_id, analysis_id, analysis_name, api_token = NULL){
+#' Internal update analysis
+#'
+#' @description
+#' Updates an analysis with name
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param analysis_id Pluto analysis uuid
+#' @param analysis_name Optional, text methods describing the plot
+#' @param analysis_methods TODO accept methods on analysis
+#' @param results TODO upload results file
+#' @returns API response for the created analysis object containing `uuid`,
+#' `analysis_type`, `name`, `results`, and `response_status_code`
+update_analysis <- function(experiment_id, analysis_id, analysis_name = NULL,
+                            analysis_methods = NULL, results = NULL){
 
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
+  url_path <- paste0('lab/experiments/', experiment_id,
+                     '/analyses/', analysis_id, '/')
+
+  body_data <- list()
+
+  # Add optional fields
+  if (!is.null(analysis_name)){
+    body_data$name = analysis_name
   }
-  validate_auth(api_token)
+  if (!is.null(analysis_methods)){
+    body_data$methods = analysis_methods
+  }
 
-  url_path <- paste0('https://api.pluto.bio/lab/experiments/',
-                     experiment_id, '/analyses/', analysis_id, '/')
+  resp_obj <- pluto_PUT(url_path, body_data)
 
-  req <- httr2::request(url_path) %>% httr2::req_method("PUT") %>%
-    httr2::req_headers(Authorization = paste0("Token ", api_token)) %>%
-    httr2::req_body_json(list(
-      name = analysis_name
-    ))
-
-  resp <- req %>%
-    httr2::req_error(is_error = function(resp) FALSE) %>%
-    httr2::req_perform()
-
-  resp_obj <- httr2::resp_body_json(resp)
-
-  if (resp$status_code == 200){
+  if (resp_obj$response_status_code == 200){
     return(resp_obj)
   } else{
-    stop(paste0('Response: ', resp$status_code))
+    stop(paste0('Response: ', resp_obj$response_status_code))
   }
 
 }
@@ -379,44 +276,44 @@ update_analysis <- function(experiment_id, analysis_id, analysis_name, api_token
 #' Add an analysis + plot to an experiment in Pluto
 #'
 #' @description
-#' Uploads an HTML plot with optional details to a Pluto experiment
+#' Uploads an HTML or image plot with optional information to a Pluto experiment.
+#' Optionally upload tabular results as well.
 #'
 #' @param experiment_id Pluto experiment ID
-#' @param file_path Path to the .html file containing a plot to push to Pluto
-#' @param analysis_name Character, a title for the new analysis
-#' @param plot_methods Character, a description of the methods used for making the plot
+#' @param display_file_path Path to the .html or image file containing a plot to push to Pluto
+#' @param results_file_path Optional, path to the .csv file containing results to push to Pluto
+#' @param analysis_name String, a title for the new analysis
+#' @param plot_methods String, a description of the methods used for making the plot
 #' @export
-pluto_add_experiment_plot <- function(experiment_id, file_path, analysis_name = "", plot_methods = ""){
+pluto_add_experiment_plot <- function(experiment_id, display_file_path, results_file_path = NULL,
+                                      analysis_name = NULL, plot_methods = NULL){
 
-  api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  validate_auth(api_token)
-
-  # Create plot & display
-  plot_display <- create_plot_display(experiment_id, plot_methods, api_token)
+  # Create plot & display shell
+  plot_display <- create_plot_shell(experiment_id)
 
   # Create analysis
-  analysis <- create_analysis(experiment_id, file_path, api_token)
+  analysis <- create_analysis(experiment_id)
 
-  analysis_uuid <- analysis$analysis_id
-  plot_uuid <- plot_display$plot_id
-  display_uuid <- plot_display$display_id
+  # Extract newly created uuids
+  analysis_uuid <- analysis$uuid
+  plot_uuid <- plot_display$uuid
+  display_uuid <- plot_display$display$uuid
 
   # Link analysis & plot
   linked_analysis_plot_display <- link_analysis(experiment_id = experiment_id,
                                                 analysis_id = analysis_uuid,
                                                 plot_id = plot_uuid,
-                                                display_id = display_uuid,
-                                                api_token = api_token)
+                                                display_id = display_uuid)
 
   # Upload plot file to Pluto
-  uploaded_plot <- upload_file(experiment_id, analysis_uuid, file_path, api_token)
-  file_uuid <- uploaded_plot$experiment_file$uuid
+  uploaded_plot <- pluto_upload(experiment_id, display_file_path)
+  uploaded_file <- uploaded_plot$experiment_file
 
   # Update plot & display
-  plot_display2 <- update_plot_display(experiment_id, analysis_uuid, display_uuid, plot_uuid,
-                                       plot_methods, file_uuid, api_token)
+  plot_display2 <- update_plot_display(experiment_id, analysis_uuid, plot_uuid,
+                                       display_uuid, plot_methods, uploaded_file)
 
   # Update analysis
-  final_obj <- update_analysis(experiment_id, analysis_uuid, analysis_name, api_token)
+  final_obj <- update_analysis(experiment_id, analysis_uuid, analysis_name)
 
 }
