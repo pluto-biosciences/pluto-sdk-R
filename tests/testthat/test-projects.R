@@ -2,7 +2,7 @@ test_that("valid project response has correct structure", {
   skip_on_cran()
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
   proj_resp <- pluto_get_projects_all()
-  expect_equal(proj_resp$count, 3)
+  expect_equal(proj_resp$count, NUM_PROJS)
   expect_equal(length(proj_resp$items), proj_resp$count)
 })
 

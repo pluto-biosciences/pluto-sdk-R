@@ -45,30 +45,6 @@ pluto_GET <- function(url_path, api_token = NULL) {
 }
 
 
-#' Pluto internal download handler
-#'
-#' @description
-#' Makes a GET request to the Pluto API and downloads a file via signed url
-#'
-#' @param url_path URL path (e.g. "lab/projects/?limit=10")
-#' @param dest_filename Filename for the downloaded file
-#' @param api_token Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used
-#' @importFrom utils download.file
-pluto_download <- function(url_path, dest_filename, api_token=NULL) {
-
-  # Attempt to fetch signed url
-  resp_obj <- pluto_GET(url_path, api_token)
-
-  if (!is.null(resp_obj$url)){
-
-    utils::download.file(resp_obj$url, destfile = dest_filename, quiet = T)
-
-  } else{
-    stop('Download response did not contain a valid signed URL')
-  }
-}
-
-
 #' Pluto internal POST function
 #'
 #' @description
@@ -101,6 +77,65 @@ pluto_POST <- function(url_path, body_data, api_token = NULL) {
   resp_obj$response_status_code <- resp$status_code
 
   return(resp_obj)
+}
+
+
+#' Pluto internal PUT function
+#'
+#' @description
+#' Makes a PUT request to the Pluto API
+#'
+#' @param url_path URL path (e.g. "lab/projects/?limit=10")
+#' @param body_data Data to be included in body
+#' @param api_token Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used
+#' @returns API response object containing `count`, a count of the total experiments
+#' in the project, and `items`, an array of experiments
+#' @keywords internal
+pluto_PUT <- function(url_path, body_data, api_token = NULL) {
+
+  # Check API token
+  if (is.null(api_token)){
+    api_token <- Sys.getenv('PLUTO_API_TOKEN')
+  }
+  validate_auth(api_token)
+
+  # PUT request
+  req <- httr2::request(paste0(base_url(), url_path)) %>%
+    httr2::req_method("PUT") %>%
+    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
+    httr2::req_body_json(body_data) %>%
+    httr2::req_error(is_error = function(resp) FALSE)
+
+  # Response
+  resp <- req %>% httr2::req_perform()
+  resp_obj <- httr2::resp_body_json(resp)
+  resp_obj$response_status_code <- resp$status_code
+
+  return(resp_obj)
+}
+
+
+#' Pluto internal download handler
+#'
+#' @description
+#' Makes a GET request to the Pluto API and downloads a file via signed url
+#'
+#' @param url_path URL path (e.g. "lab/projects/?limit=10")
+#' @param dest_filename Filename for the downloaded file
+#' @param api_token Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used
+#' @importFrom utils download.file
+pluto_download <- function(url_path, dest_filename, api_token=NULL) {
+
+  # Attempt to fetch signed url
+  resp_obj <- pluto_GET(url_path, api_token)
+
+  if (!is.null(resp_obj$url)){
+
+    utils::download.file(resp_obj$url, destfile = dest_filename, quiet = T)
+
+  } else{
+    stop('Download response did not contain a valid signed URL')
+  }
 }
 
 
@@ -181,40 +216,4 @@ pluto_upload <- function(experiment_id, file_path) {
   } else {
     stop(paste0("Upload failed with status code: ", resp2$status_code))
   }
-
-}
-
-
-#' Pluto internal PUT function
-#'
-#' @description
-#' Makes a PUT request to the Pluto API
-#'
-#' @param url_path URL path (e.g. "lab/projects/?limit=10")
-#' @param body_data Data to be included in body
-#' @param api_token Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used
-#' @returns API response object containing `count`, a count of the total experiments
-#' in the project, and `items`, an array of experiments
-#' @keywords internal
-pluto_PUT <- function(url_path, body_data, api_token = NULL) {
-
-  # Check API token
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  }
-  validate_auth(api_token)
-
-  # PUT request
-  req <- httr2::request(paste0(base_url(), url_path)) %>%
-    httr2::req_method("PUT") %>%
-    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
-    httr2::req_body_json(body_data) %>%
-    httr2::req_error(is_error = function(resp) FALSE)
-
-  # Response
-  resp <- req %>% httr2::req_perform()
-  resp_obj <- httr2::resp_body_json(resp)
-  resp_obj$response_status_code <- resp$status_code
-
-  return(resp_obj)
 }

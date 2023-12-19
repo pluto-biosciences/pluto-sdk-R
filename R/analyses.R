@@ -202,7 +202,7 @@ update_plot_display <- function(experiment_id, analysis_id, plot_id, display_id,
   if (!is.null(display_methods)){
     body_data$methods = display_methods
   }
-  if (!is.null(file_id)){
+  if (!is.null(uploaded_file)){
     body_data$figure_file = uploaded_file
   }
 
