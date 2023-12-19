@@ -2,6 +2,8 @@
 
 <img src="https://cdn.bfldr.com/2Q1IPX6I/at/hqwgpb3vqscf83j375mfn9gf/Integrations_-_R" height="500">
 
+<button class="pluto-button"><a href="https://share.hsforms.com/15Mj4CreYSoqKDoZDYBKpgg5c2ld" target="_blank" class="button-text-link">Subscribe for notifications about new releases :rocket:</a></button>
+
 ## Overview
 
 `pluto` is the official R package for interacting with <a href="https://pluto.bio" class="pluto-link">Pluto</a>, the biological discovery platform. With a few lines of code, you can read data and results directly into your R scripts, and push custom plots back to Pluto where they remain interactive and collaborative.
