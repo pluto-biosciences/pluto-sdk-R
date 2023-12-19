@@ -1,0 +1,17 @@
+h2  {
+  padding-top: 20px;
+  padding-bottom: 5px;
+}
+
+.pluto-link {
+  color: #7333D9;
+  background-color: transparent;
+  text-decoration: none;
+  font-weight: bold;
+}
+.pluto-link:hover {
+  color: #A536B2;
+  background-color: transparent;
+  text-decoration: underline;
+  font-weight: bold;
+}

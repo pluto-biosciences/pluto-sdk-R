@@ -6,7 +6,7 @@ template:
 navbar:
   title: "Pluto R Package"
   left:
-    - text: "Credentials"
+    - text: "Auth"
       href: articles/authentication.html
     - text: "Get started"
       menu:
