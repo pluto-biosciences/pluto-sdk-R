@@ -12,8 +12,8 @@ navbar:
       menu:
         - text: "Quick start guide"
           href: articles/get_started.html
-        - text: "Introduction to the Pluto data models"
-          href: articles/get_started.html
+        - text: "Intro to the Pluto data models"
+          href: articles/pluto_models.html
     - text: "Vignettes"
       menu:
         - text: Common recipes by assay type
