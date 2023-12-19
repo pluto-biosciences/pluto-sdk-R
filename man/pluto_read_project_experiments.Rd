@@ -2,12 +2,12 @@
 % Please edit documentation in R/projects.R
 \name{pluto_read_project_experiments}
 \alias{pluto_read_project_experiments}
-\title{Read Pluto experiments in a project into a data frame}
+\title{Read all experiments in a Pluto project into a data frame}
 \usage{
 pluto_read_project_experiments(project_id)
 }
 \arguments{
-\item{project_id}{Pluto project ID}
+\item{project_id}{Pluto project ID (e.g. PLXP02355)}
 }
 \value{
 A data.frame containing columns:\tabular{ll}{
@@ -30,6 +30,8 @@ A data.frame containing columns:\tabular{ll}{
 \code{owner} \tab First and last name of the user who currently owns the experiment \cr
 \tab \cr
 \code{created_by} \tab First and last name of the user who created the experiment \cr
+\tab \cr
+\code{created_at} \tab Date the experiment was created \cr
 }
 }
 \description{

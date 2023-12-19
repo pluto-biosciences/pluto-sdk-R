@@ -1,0 +1,43 @@
+h2  {
+  padding-top: 20px;
+  padding-bottom: 5px;
+}
+
+.pluto-link {
+  color: #7333D9;
+  background-color: transparent;
+  text-decoration: none;
+  font-weight: bold;
+}
+.pluto-link:hover {
+  color: #A536B2;
+  background-color: transparent;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.pluto-button {
+  background-color: #7333D9;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  margin-bottom: 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.pluto-button:hover {
+  background-color: #A536B2;
+}
+
+.button-text-link {
+  color: #FFFFFF;
+  padding: 10px;
+  margin: 10px;
+  background-color: transparent;
+  text-decoration: none;
+  font-weight: bold;
+}

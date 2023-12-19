@@ -1,6 +1,6 @@
 Package: pluto
 Title: Query and manipulate biological data stored in Pluto
-Version: 0.0.1
+Version: 0.1.0
 Authors@R: 
     person(c("Rani", "K"), "Powers", , "rani.powers@pluto.bio", role = c("aut", "cre"))
 Description: Read assay data and sample annotations that are stored in
