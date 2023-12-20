@@ -6,9 +6,9 @@ base_url <- function(){
   }
 
   if (Sys.getenv("PLUTO_ENV") == "production"){
-    return(Sys.getenv("PLUTO_API_PROD"))
+    return("https://staging-api.pluto.bio/")
   } else{
-    return(Sys.getenv("PLUTO_API_STAGING"))
+    return("https://api.pluto.bio/")
   }
 }
 
