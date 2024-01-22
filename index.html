@@ -145,6 +145,29 @@
 </h2>
 <p>We’re here to help! Feel free to reach out to <a href="mailto:support@pluto.bio" class="pluto-link">support@pluto.bio</a> or email your Pluto customer representative directly.</p>
 </div>
+<div class="section level2">
+<h2 id="developers">Developers<a class="anchor" aria-label="anchor" href="#developers"></a>
+</h2>
+<div class="section level4">
+<h4 id="using-environment-variables-locally">Using environment variables locally<a class="anchor" aria-label="anchor" href="#using-environment-variables-locally"></a>
+</h4>
+<p>When running tests and developing the <code>pluto</code> R package, you will need to decrypt the encrypted <code>.Renviron</code> file in this repo.</p>
+<p><strong>Decrypt the encrypted .Renviron file</strong></p>
+<p>You will need to decrypt the <code>.Renviron</code> file the first time you start working in this repo, and any time other developers have made changes. It’s good practice to check regularly for updates.</p>
+<pre><code>openssl enc -d -aes256 -base64 -in .Renviron.encrypted -out .Renviron</code></pre>
+<p>If you make modifications to the <code>.Renviron</code> file (e.g. adding new experiments for testing, or other variables), encrypt your file and check it in</p>
+<p><strong>Encrypt the modified .Renviron file</strong></p>
+<pre><code>openssl enc -aes256 -base64 -in .Renviron -out .Renviron.encrypted</code></pre>
+<p>Check in the updated <code>.Renviron.encrypted</code> when opening a PR so that other developers have the latest changes.</p>
+</div>
+<div class="section level4">
+<h4 id="running-tests">Running tests<a class="anchor" aria-label="anchor" href="#running-tests"></a>
+</h4>
+<p>To run tests: <code>devtools::test()</code></p>
+<p>Note that most tests in the test suite are integration tests, so they require a specific API token and uuids present in the <code>.Renviron</code> file.</p>
+<p>To build pkgdown site: <code><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">pkgdown::build_site()</a></code></p>
+</div>
+</div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
