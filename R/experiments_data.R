@@ -294,6 +294,7 @@ pluto_get_seurat_object <- function(experiment_id, seurat_type, silent = FALSE){
 
   temp_filename <- tempfile()
   pluto_download_seurat_object(experiment_id, seurat_type, dest_filename = temp_filename)
+  closeAllConnections()
   final_obj <- readRDS(temp_filename)
   file.remove(temp_filename)
 
