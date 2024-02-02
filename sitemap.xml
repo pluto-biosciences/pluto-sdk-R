@@ -22,6 +22,9 @@
     <loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/rnaseq_recipes.html</loc>
   </url>
   <url>
+    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/scrnaseq_recipes.html</loc>
+  </url>
+  <url>
     <loc>https://pluto-biosciences.github.io/pluto-sdk-R/authors.html</loc>
   </url>
   <url>
@@ -29,6 +32,9 @@
   </url>
   <url>
     <loc>https://pluto-biosciences.github.io/pluto-sdk-R/news/index.html</loc>
+  </url>
+  <url>
+    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/add_cluster_annotations.html</loc>
   </url>
   <url>
     <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/create_analysis.html</loc>
@@ -73,6 +79,12 @@
     <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download_sample_data.html</loc>
   </url>
   <url>
+    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download_seurat_object.html</loc>
+  </url>
+  <url>
+    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_cluster_annotation_sets.html</loc>
+  </url>
+  <url>
     <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiment.html</loc>
   </url>
   <url>
@@ -103,6 +115,9 @@
     <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_results.html</loc>
   </url>
   <url>
+    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_seurat_object.html</loc>
+  </url>
+  <url>
     <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_is_logged_in.html</loc>
   </url>
   <url>
@@ -128,6 +143,9 @@
   </url>
   <url>
     <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_sample_data.html</loc>
+  </url>
+  <url>
+    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_seurat_object.html</loc>
   </url>
   <url>
     <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_upload.html</loc>

@@ -7,7 +7,8 @@ articles:
   get_started: get_started.html
   pluto_models: pluto_models.html
   rnaseq_recipes: rnaseq_recipes.html
-last_built: 2024-01-22T16:53Z
+  scrnaseq_recipes: scrnaseq_recipes.html
+last_built: 2024-02-02T23:57Z
 urls:
   reference: https://pluto-biosciences.github.io/pluto-sdk-R/reference
   article: https://pluto-biosciences.github.io/pluto-sdk-R/articles
