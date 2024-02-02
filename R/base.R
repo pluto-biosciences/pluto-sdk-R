@@ -129,7 +129,7 @@ pluto_download <- function(url_path, dest_filename, api_token=NULL) {
 
   if (!is.null(resp_obj$url)){
 
-    utils::download.file(resp_obj$url, destfile = dest_filename, quiet = T)
+    utils::download.file(resp_obj$url, destfile = dest_filename, quiet = T, mode = "wb")
 
   } else{
     stop('Download response did not contain a valid signed URL')
