@@ -48,4 +48,34 @@ Instead of having your outsourced bioinformatics vendor send you results by emai
 
 We're here to help! Feel free to reach out to <a href="mailto:support@pluto.bio" class="pluto-link">support@pluto.bio</a> or email your Pluto customer representative directly.
 
+## Developers
 
+#### Using environment variables locally
+
+When running tests and developing the `pluto` R package, you will need to decrypt the encrypted `.Renviron` file in this repo.
+
+**Decrypt the encrypted .Renviron file**
+
+You will need to decrypt the `.Renviron` file the first time you start working in this repo, and any time other developers have made changes. It's good practice to check regularly for updates.
+
+```
+openssl enc -d -aes256 -base64 -in .Renviron.encrypted -out .Renviron
+```
+
+If you make modifications to the `.Renviron` file (e.g. adding new experiments for testing, or other variables), encrypt your file and check it in 
+
+**Encrypt the modified .Renviron file**
+
+```
+openssl enc -aes256 -base64 -in .Renviron -out .Renviron.encrypted
+```
+
+Check in the updated `.Renviron.encrypted` when opening a PR so that other developers have the latest changes. 
+
+#### Running tests
+
+To run tests: `devtools::test()`
+
+Note that most tests in the test suite are integration tests, so they require a specific API token and uuids present in the `.Renviron` file.
+
+To build pkgdown site: `pkgdown::build_site()`

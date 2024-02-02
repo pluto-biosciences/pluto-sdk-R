@@ -1,12 +1,12 @@
 # Base functions for interfacing with the Pluto API
 
 base_url <- function(){
-  if (!Sys.getenv("PLUTO_ENV") == "staging"){
-    Sys.setenv(PLUTO_ENV="production")
-    return("https://api.pluto.bio/")
-
-  } else{
+  if(Sys.getenv("PLUTO_ENV") == "staging"){
     return("https://staging-api.pluto.bio/")
+  } else if(Sys.getenv("PLUTO_ENV") == "development"){
+    return("https://dev-api.pluto.bio/")
+  } else{
+    return("https://api.pluto.bio/")
   }
 }
 

@@ -133,3 +133,69 @@ test_that("pluto_download_assay_data downloads CSV", {
   expect_equal(nrow(df), expected_rows)
   file.remove(expected_filename)
 })
+
+test_that("pluto_read_seurat_object raw works", {
+  skip_on_cran()
+  Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
+  expected_cells <- NUM_EXPT_CELLS_RAW_SCRNASEQ
+  expected_cols <- NUM_EXPT_COLS_RAW_SCRNASEQ
+  so <- pluto_read_seurat_object(experiment_id = TESTTHAT_EXPT_ID_SCRNASEQ,
+                                 seurat_type = "raw",
+                                 silent = FALSE)
+  expect_equal(nrow(so@meta.data), expected_cells)
+  expect_equal(ncol(so@meta.data), expected_cols)
+})
+
+test_that("pluto_read_seurat_object final works", {
+  skip_on_cran()
+  Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
+  expected_cells <- NUM_EXPT_CELLS_FINAL_SCRNASEQ
+  expected_cols <- NUM_EXPT_COLS_FINAL_SCRNASEQ_WA
+  expected_annotation_sets <- CUSTOM_ANNOTATION_SETS
+  expected_palettes <- NUM_COLOR_PALETTES
+  expected_color_1 <- CLUSTER_COLOR_CHECK_1
+  expected_color_2 <- CLUSTER_COLOR_CHECK_2
+  so <- pluto_read_seurat_object(experiment_id = TESTTHAT_EXPT_ID_SCRNASEQ,
+                                 seurat_type = "final",
+                                 silent = FALSE)
+  expect_equal(nrow(so$obj@meta.data), expected_cells)
+  expect_equal(ncol(so$obj@meta.data), expected_cols)
+  expect_in(expected_annotation_sets, colnames(so$obj@meta.data))
+  expect_equal(length(so$colors), expected_palettes)
+  expect_equal(so$colors$cell_types[[4]], expected_color_1)
+  expect_equal(so$colors$default_clusters_res_0_4[[1]], expected_color_2)
+})
+
+test_that("pluto_download_seurat_object downloads raw RDS", {
+  skip_on_cran()
+  Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
+  expected_filename <- "raw_seurat_object.rds"
+  expected_cells <- NUM_EXPT_CELLS_RAW_SCRNASEQ
+  expected_cols <- NUM_EXPT_COLS_RAW_SCRNASEQ
+  pluto_download_seurat_object(experiment_id = TESTTHAT_EXPT_ID_SCRNASEQ,
+                               seurat_type = "raw",
+                               silent = FALSE,
+                               dest_filename = expected_filename)
+  expect_true(file.exists(expected_filename))
+  so <- readRDS(expected_filename)
+  expect_equal(nrow(so@meta.data), expected_cells)
+  expect_equal(ncol(so@meta.data), expected_cols)
+  file.remove(expected_filename)
+})
+
+test_that("pluto_download_seurat_object downloads final RDS", {
+  skip_on_cran()
+  Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
+  expected_filename <- "final_seurat_object.rds"
+  expected_cells <- NUM_EXPT_CELLS_FINAL_SCRNASEQ
+  expected_cols <- NUM_EXPT_COLS_FINAL_SCRNASEQ_NA
+  pluto_download_seurat_object(experiment_id = TESTTHAT_EXPT_ID_SCRNASEQ,
+                               seurat_type = "final",
+                               silent = FALSE,
+                               dest_filename = expected_filename)
+  expect_true(file.exists(expected_filename))
+  so <- readRDS(expected_filename)
+  expect_equal(nrow(so@meta.data), expected_cells)
+  expect_equal(ncol(so@meta.data), expected_cols)
+  file.remove(expected_filename)
+})
