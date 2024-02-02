@@ -14,8 +14,10 @@ BugReports: https://github.com/pluto-biosciences/pluto-sdk-R/issues
 Depends: 
     R (>= 4.0)
 Imports: 
+    dplyr,
     htmlwidgets,
     httr2 (>= 0.2.3),
+    tibble,
     tidyr
 Suggests: 
     httptest2,
@@ -23,9 +25,10 @@ Suggests:
     plotly,
     knitr,
     rmarkdown,
-    markdown
+    markdown,
+    Seurat
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.0

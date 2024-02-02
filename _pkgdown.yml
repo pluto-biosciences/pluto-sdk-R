@@ -19,6 +19,8 @@ navbar:
         - text: Common recipes by assay type
         - text: "RNA-seq"
           href: articles/rnaseq_recipes.html
+        - text: "Single cell RNA-seq"
+          href: articles/scrnaseq_recipes.html
         - text: -------
         - text: Advanced analyses
         - text: "Introduction to multi-experiment integration"
@@ -48,11 +50,27 @@ reference:
   - title: "Reading data frames"
     desc: "Functions for reading Pluto data into a data.frame"
     contents:
-      - starts_with("pluto_read")
+      - pluto_read_assay_data
+      - pluto_read_data
+      - pluto_read_experiment_analyses
+      - pluto_read_project_experiments
+      - pluto_read_results
+      - pluto_read_sample_data
+  - title: "Reading Seurat objects"
+    desc: "Functions for fetching Seurat objects from Pluto"
+    contents:
+      - pluto_read_seurat_object
   - title: "Downloading CSVs"
     desc: "Functions for saving Pluto data to a CSV file"
     contents:
-      - starts_with("pluto_download")
+      - pluto_download
+      - pluto_download_assay_data
+      - pluto_download_results
+      - pluto_download_sample_data
+  - title: "Downloading Seurat objects"
+    desc: "Function for saving Seurat objects from Pluto"
+    contents:
+      - pluto_download_seurat_object
   - title: "Uploading to Pluto"
     desc: "Functions for pushing plots and tables back into a Pluto experiment"
     contents:
@@ -74,3 +92,6 @@ reference:
       - pluto_PUT
       - pluto_download
       - pluto_upload
+      - pluto_get_seurat_object
+      - pluto_get_cluster_annotation_sets
+      - add_cluster_annotations

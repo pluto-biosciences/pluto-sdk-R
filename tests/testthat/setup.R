@@ -9,8 +9,8 @@ TESTTHAT_INVALID_API_TOKEN <- Sys.getenv("PLUTO_INVALID_API_TOKEN")
 NUM_PROJS <- 4
 TESTTHAT_EMPTY_PROJ_ID <- Sys.getenv("EMPTY_PROJECT_ID")
 TESTTHAT_NONEMPTY_PROJ_ID <- Sys.getenv("NONEMPTY_PROJECT_ID")
-NUM_ALL_EXPTS <- 6
-NUM_PROJ_EXPTS <- 5
+NUM_ALL_EXPTS <- 7
+NUM_PROJ_EXPTS <- 6
 
 # RNA-seq test experiment
 TESTTHAT_EXPT_ID_RNASEQ <- Sys.getenv("EXPERIMENT_ID_RNASEQ")
@@ -29,3 +29,19 @@ NUM_DB_TARGETS_CUTANDRUN <- 49916
 
 # Experiment for creating/modifying analyses
 TESTTHAT_EXPT_ID_MOD <- Sys.getenv("EXPERIMENT_ID_MOD")
+
+# scRNA-seq test experiment
+TESTTHAT_EXPT_ID_SCRNASEQ <- Sys.getenv("EXPERIMENT_ID_SCRNASEQ")
+NUM_EXPT_CELLS_RAW_SCRNASEQ <- 7720
+NUM_EXPT_COLS_RAW_SCRNASEQ <- 8
+NUM_EXPT_CELLS_FINAL_SCRNASEQ <- 6969
+NUM_EXPT_COLS_FINAL_SCRNASEQ_WA <- 21
+NUM_EXPT_COLS_FINAL_SCRNASEQ_NA <- 16
+CUSTOM_ANNOTATION_SETS <- c("cell_types",
+                            "default_clusters_res_0_1",
+                            "default_clusters_res_0_4",
+                            "default_clusters_res_0_6",
+                            "default_clusters_res_1_0")
+NUM_COLOR_PALETTES <- 5
+CLUSTER_COLOR_CHECK_1 <- "#e056fd"
+CLUSTER_COLOR_CHECK_2 <- "#6366f1"
