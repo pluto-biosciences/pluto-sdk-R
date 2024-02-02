@@ -285,7 +285,6 @@ pluto_download_assay_data <- function(experiment_id, dest_filename = NULL){
 #'    \tab \cr
 #'    \code{message} \tab Additional details \cr
 #' }
-#' @importFrom utils read.csv
 #' @export
 pluto_get_seurat_object <- function(experiment_id, seurat_type, silent = FALSE){
 
@@ -321,7 +320,6 @@ pluto_get_seurat_object <- function(experiment_id, seurat_type, silent = FALSE){
 #'    \tab \cr
 #'    \code{message} \tab Additional details \cr
 #' }
-#' @importFrom utils read.csv
 #' @export
 pluto_get_cluster_annotation_sets <- function(experiment_id, silent = FALSE){
 
@@ -471,10 +469,10 @@ pluto_download_seurat_object <- function(experiment_id, seurat_type,
   } else{
     stop("Unsupported seurat_type Supported Seurat object types are 'raw', 'final'.")
   }
-  url_path_post <- paste0("lab/experiments/", experiment_id,
-                          "/files/", seurat_uuid, "/download/")
+  url_path_download <- paste0("lab/experiments/", experiment_id,
+                              "/files/", seurat_uuid, "/download/")
 
-  pluto_download(url_path_post, dest_filename)
+  pluto_download(url_path_download, dest_filename)
 
 }
 
