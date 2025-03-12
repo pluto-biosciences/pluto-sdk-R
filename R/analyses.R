@@ -10,11 +10,9 @@
 #' @returns API response object containing `count`, a count of the total analyses,
 #' and `items`, an array of analysis objects
 #' @export
-pluto_get_experiment_analyses <- function(experiment_id, limit = 1000){
-
-  url_path <- paste0('lab/experiments/', experiment_id, '/plots/?limit=', format(limit, scientific=F))
+pluto_get_experiment_analyses <- function(experiment_id, limit = 1000) {
+  url_path <- paste0("lab/experiments/", experiment_id, "/plots/?limit=", format(limit, scientific = F))
   return(pluto_GET(url_path))
-
 }
 
 
@@ -39,25 +37,26 @@ pluto_get_experiment_analyses <- function(experiment_id, limit = 1000){
 #'    \code{is_archived} \tab Boolean, whether the analysis was archived and is no longer active \cr
 #' }
 #' @export
-pluto_read_experiment_analyses <- function(experiment_id){
-
+pluto_read_experiment_analyses <- function(experiment_id) {
   analyses_response <- pluto_get_experiment_analyses(experiment_id)
   analyses_count <- analyses_response$count
   analyses_list <- analyses_response$items
 
-  final_df = data.frame()
+  final_df <- data.frame()
 
-  for (i in 1:analyses_count){
-
+  for (i in 1:analyses_count) {
     # Subset to a few summary columns
     analysis_display <- analyses_list[[i]]
 
     analysis_name <- ifelse(!is.null(analysis_display$analysis),
-                            analysis_display$analysis$name, "")
+      analysis_display$analysis$name, ""
+    )
     display_type <- ifelse(!is.null(analysis_display$display),
-                            analysis_display$display$display_type, "")
+      analysis_display$display$display_type, ""
+    )
     is_archived <- ifelse(!is.null(analysis_display$display),
-                           analysis_display$display$is_archived, "")
+      analysis_display$display$is_archived, ""
+    )
 
     df <- data.frame(
       analysis_type = analysis_display$analysis_type,
@@ -73,39 +72,40 @@ pluto_read_experiment_analyses <- function(experiment_id){
   }
 
   return(final_df)
-
 }
 
 
 #' Internal create new external analysis
 #'
 #' @description
-#' Creates a new external analysis on an experiment
+#' Creates a new external analysis on an experiment using the upload session UUID.
 #'
 #' @param experiment_id Pluto experiment ID
-#' @param analysis_name Name for the analysis
+#' @param upload_session_uuid The upload session UUID to use as the display_file_id
+#' @param analysis_name Name for the analysis (default "External")
+#' @param methods Optional methods describing the analysis
 #' @returns API response for the created analysis object containing `uuid`,
-#' `analysis_type`, `category`, `results`, and `response_status_code`
-create_analysis <- function(experiment_id, analysis_name = ""){
-
-  url_path <- paste0('lab/experiments/', experiment_id, '/analyses/')
+#' `analysis_type`, `name`, `results`, and `response_status_code`
+create_analysis <- function(experiment_id, upload_session_uuid, analysis_name = "External", methods = "") {
+  url_path <- paste0("lab/experiments/", experiment_id, "/analyses/")
 
   body_data <- list(
-    analysis_type = "external"
+    analysis_type = "external",
+    name = analysis_name,
+    origin = "web",
+    display_file_id = upload_session_uuid,
+    results_file_id = "",
+    script_file_id = "",
+    methods = methods
   )
 
   resp_obj <- pluto_POST(url_path, body_data)
 
-  # NOTE: At this point, you won't yet be able to see the newly created analysis
-  # in the response from pluto_get_experiment_analyses(experiment_id), only in the database itself
-
-  if (resp_obj$response_status_code == 200){
+  if (resp_obj$response_status_code == 200) {
     return(resp_obj)
-
-  } else{
-    stop(paste0('Response: ', resp_obj$response_status_code))
+  } else {
+    stop(paste0("Response: ", resp_obj$response_status_code))
   }
-
 }
 
 
@@ -117,9 +117,8 @@ create_analysis <- function(experiment_id, analysis_name = ""){
 #' @param experiment_id Pluto experiment ID
 #' @returns API response for the created plot object containing plot shell `uuid`,
 #' `display$uuid`, and `response_status_code`
-create_plot_shell <- function(experiment_id){
-
-  url_path <- paste0('lab/experiments/', experiment_id, '/plots/')
+create_plot_shell <- function(experiment_id) {
+  url_path <- paste0("lab/experiments/", experiment_id, "/plots/")
 
   body_data <- list(
     analysis_type = "external",
@@ -128,13 +127,11 @@ create_plot_shell <- function(experiment_id){
 
   resp_obj <- pluto_POST(url_path, body_data)
 
-  if (resp_obj$response_status_code == 201){
+  if (resp_obj$response_status_code == 201) {
     return(resp_obj)
-
-  } else{
-    stop(paste0('Response: ', resp_obj$response_status_code))
+  } else {
+    stop(paste0("Response: ", resp_obj$response_status_code))
   }
-
 }
 
 
@@ -149,10 +146,11 @@ create_plot_shell <- function(experiment_id){
 #' @param display_id Pluto display uuid
 #' @returns API response for the linked plot object containing the plot shell,
 #' analysis, and display fields
-link_analysis <- function(experiment_id, analysis_id, plot_id, display_id){
-
-  url_path <- paste0('lab/experiments/', experiment_id,
-                     '/plots/', plot_id, '/link-analysis/')
+link_analysis <- function(experiment_id, analysis_id, plot_id, display_id) {
+  url_path <- paste0(
+    "lab/experiments/", experiment_id,
+    "/plots/", plot_id, "/link-analysis/"
+  )
 
   body_data <- list(
     analysis_id = analysis_id,
@@ -161,16 +159,18 @@ link_analysis <- function(experiment_id, analysis_id, plot_id, display_id){
 
   resp_obj <- pluto_POST(url_path, body_data)
 
-  if (resp_obj$response_status_code == 200 | resp_obj$response_status_code == 201){
-
-    return(list(analysis_id = resp_obj$analysis$uuid,
-                plot_id = resp_obj$plot$uuid,
-                display_id = resp_obj$display$uuid,
-                plot_obj = resp_obj))
-  } else{
-    stop(paste0('Response: ', resp_obj$response_status_code))
+  if (resp_obj$response_status_code == 200 | resp_obj$response_status_code == 201) {
+    return(list(
+      analysis_id = resp_obj$analysis$uuid,
+      plot_id = resp_obj$plot$uuid,
+      display_id = resp_obj$display$uuid,
+      plot_obj = resp_obj
+    ))
+  } else {
+    stop(paste0("Response: ", resp_obj$response_status_code))
   }
 }
+
 
 #' Internal update display
 #'
@@ -186,11 +186,12 @@ link_analysis <- function(experiment_id, analysis_id, plot_id, display_id){
 #' @returns API response for the linked plot object containing the plot shell,
 #' analysis, and display fields
 update_plot_display <- function(experiment_id, analysis_id, plot_id, display_id,
-                           display_methods = NULL, uploaded_file = NULL){
-
+                                display_methods = NULL, uploaded_file = NULL) {
   # Add the methods to the display
-  url_path <- paste0('lab/experiments/', experiment_id,
-                     '/plots/', plot_id, '/displays/', display_id, '/')
+  url_path <- paste0(
+    "lab/experiments/", experiment_id,
+    "/plots/", plot_id, "/displays/", display_id, "/"
+  )
 
   body_data <- list(
     analysis_id = analysis_id,
@@ -199,20 +200,21 @@ update_plot_display <- function(experiment_id, analysis_id, plot_id, display_id,
   )
 
   # Add optional fields
-  if (!is.null(display_methods)){
-    body_data$methods = display_methods
+  if (!is.null(display_methods)) {
+    body_data$methods <- display_methods
   }
-  if (!is.null(uploaded_file)){
-    body_data$figure_file = uploaded_file
+  if (!is.null(uploaded_file)) {
+    body_data$figure_file <- uploaded_file
   }
 
   display_resp_obj <- pluto_PUT(url_path, body_data)
 
-  if (display_resp_obj$response_status_code == 200){
-
+  if (display_resp_obj$response_status_code == 200) {
     # Add the analysis to the plot shell
-    url_path <- paste0('lab/experiments/', experiment_id,
-                       '/plots/', plot_id, '/')
+    url_path <- paste0(
+      "lab/experiments/", experiment_id,
+      "/plots/", plot_id, "/"
+    )
 
     body_data <- list(
       analysis_id = analysis_id,
@@ -221,16 +223,14 @@ update_plot_display <- function(experiment_id, analysis_id, plot_id, display_id,
 
     plot_resp_obj <- pluto_PUT(url_path, body_data)
 
-    if (plot_resp_obj$response_status_code == 200){
+    if (plot_resp_obj$response_status_code == 200) {
       return(plot_resp_obj)
-    } else{
-      stop(paste0('Response: ', plot_resp_obj$response_status_code))
+    } else {
+      stop(paste0("Response: ", plot_resp_obj$response_status_code))
     }
-
-  } else{
-    stop(paste0('Response: ', display_resp_obj$response_status_code))
+  } else {
+    stop(paste0("Response: ", display_resp_obj$response_status_code))
   }
-
 }
 
 
@@ -247,29 +247,29 @@ update_plot_display <- function(experiment_id, analysis_id, plot_id, display_id,
 #' @returns API response for the created analysis object containing `uuid`,
 #' `analysis_type`, `name`, `results`, and `response_status_code`
 update_analysis <- function(experiment_id, analysis_id, analysis_name = NULL,
-                            analysis_methods = NULL, results = NULL){
-
-  url_path <- paste0('lab/experiments/', experiment_id,
-                     '/analyses/', analysis_id, '/')
+                            analysis_methods = NULL, results = NULL) {
+  url_path <- paste0(
+    "lab/experiments/", experiment_id,
+    "/analyses/", analysis_id, "/"
+  )
 
   body_data <- list()
 
   # Add optional fields
-  if (!is.null(analysis_name)){
-    body_data$name = analysis_name
+  if (!is.null(analysis_name)) {
+    body_data$name <- analysis_name
   }
-  if (!is.null(analysis_methods)){
-    body_data$methods = analysis_methods
+  if (!is.null(analysis_methods)) {
+    body_data$methods <- analysis_methods
   }
 
   resp_obj <- pluto_PUT(url_path, body_data)
 
-  if (resp_obj$response_status_code == 200){
+  if (resp_obj$response_status_code == 200) {
     return(resp_obj)
-  } else{
-    stop(paste0('Response: ', resp_obj$response_status_code))
+  } else {
+    stop(paste0("Response: ", resp_obj$response_status_code))
   }
-
 }
 
 
@@ -286,34 +286,18 @@ update_analysis <- function(experiment_id, analysis_id, analysis_name = NULL,
 #' @param plot_methods String, a description of the methods used for making the plot
 #' @export
 pluto_add_experiment_plot <- function(experiment_id, display_file_path, results_file_path = NULL,
-                                      analysis_name = NULL, plot_methods = NULL){
-
-  # Create plot & display shell
-  plot_display <- create_plot_shell(experiment_id)
-
-  # Create analysis
-  analysis <- create_analysis(experiment_id)
-
-  # Extract newly created uuids
-  analysis_uuid <- analysis$uuid
-  plot_uuid <- plot_display$uuid
-  display_uuid <- plot_display$display$uuid
-
-  # Link analysis & plot
-  linked_analysis_plot_display <- link_analysis(experiment_id = experiment_id,
-                                                analysis_id = analysis_uuid,
-                                                plot_id = plot_uuid,
-                                                display_id = display_uuid)
-
-  # Upload plot file to Pluto
+                                      analysis_name = NULL, plot_methods = NULL) {
+  # Upload plot file to Pluto and obtain the upload session UUID
   uploaded_plot <- pluto_upload(experiment_id, display_file_path)
-  uploaded_file <- uploaded_plot$experiment_file
+  upload_session_uuid <- uploaded_plot$upload_session_uuid
 
-  # Update plot & display
-  plot_display2 <- update_plot_display(experiment_id, analysis_uuid, plot_uuid,
-                                       display_uuid, plot_methods, uploaded_file)
+  # Create external analysis using the upload session UUID
+  analysis <- create_analysis(
+    experiment_id,
+    upload_session_uuid,
+    analysis_name = ifelse(is.null(analysis_name), "External", analysis_name),
+    methods = plot_methods
+  )
 
-  # Update analysis
-  final_obj <- update_analysis(experiment_id, analysis_uuid, analysis_name)
-
+  return(analysis)
 }

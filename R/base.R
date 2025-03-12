@@ -1,11 +1,11 @@
 # Base functions for interfacing with the Pluto API
 
-base_url <- function(){
-  if(Sys.getenv("PLUTO_ENV") == "staging"){
+base_url <- function() {
+  if (Sys.getenv("PLUTO_ENV") == "staging") {
     return("https://staging-api.pluto.bio/")
-  } else if(Sys.getenv("PLUTO_ENV") == "development"){
+  } else if (Sys.getenv("PLUTO_ENV") == "development") {
     return("https://dev-api.pluto.bio/")
-  } else{
+  } else {
     return("https://api.pluto.bio/")
   }
 }
@@ -21,17 +21,16 @@ base_url <- function(){
 #' @returns API response object containing `count`, a count of the total experiments
 #' in the project, and `items`, an array of experiments
 pluto_GET <- function(url_path, api_token = NULL) {
-
   # Check API token
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
+  if (is.null(api_token)) {
+    api_token <- Sys.getenv("PLUTO_API_TOKEN")
   }
   validate_auth(api_token)
 
   # GET request
   req <- httr2::request(paste0(base_url(), url_path)) %>%
     httr2::req_method("GET") %>%
-    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
+    httr2::req_headers(Authorization = paste0("Token ", api_token)) %>%
     httr2::req_error(is_error = function(resp) FALSE)
 
   # Response
@@ -55,17 +54,16 @@ pluto_GET <- function(url_path, api_token = NULL) {
 #' in the project, and `items`, an array of experiments
 #' @keywords internal
 pluto_POST <- function(url_path, body_data, api_token = NULL) {
-
   # Check API token
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
+  if (is.null(api_token)) {
+    api_token <- Sys.getenv("PLUTO_API_TOKEN")
   }
   validate_auth(api_token)
 
   # POST request
   req <- httr2::request(paste0(base_url(), url_path)) %>%
     httr2::req_method("POST") %>%
-    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
+    httr2::req_headers(Authorization = paste0("Token ", api_token)) %>%
     httr2::req_body_json(body_data) %>%
     httr2::req_error(is_error = function(resp) FALSE)
 
@@ -90,17 +88,16 @@ pluto_POST <- function(url_path, body_data, api_token = NULL) {
 #' in the project, and `items`, an array of experiments
 #' @keywords internal
 pluto_PUT <- function(url_path, body_data, api_token = NULL) {
-
   # Check API token
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
+  if (is.null(api_token)) {
+    api_token <- Sys.getenv("PLUTO_API_TOKEN")
   }
   validate_auth(api_token)
 
   # PUT request
   req <- httr2::request(paste0(base_url(), url_path)) %>%
     httr2::req_method("PUT") %>%
-    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
+    httr2::req_headers(Authorization = paste0("Token ", api_token)) %>%
     httr2::req_body_json(body_data) %>%
     httr2::req_error(is_error = function(resp) FALSE)
 
@@ -122,17 +119,14 @@ pluto_PUT <- function(url_path, body_data, api_token = NULL) {
 #' @param dest_filename Filename for the downloaded file
 #' @param api_token Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used
 #' @importFrom utils download.file
-pluto_download <- function(url_path, dest_filename, api_token=NULL) {
-
+pluto_download <- function(url_path, dest_filename, api_token = NULL) {
   # Attempt to fetch signed url
   resp_obj <- pluto_GET(url_path, api_token)
 
-  if (!is.null(resp_obj$url)){
-
+  if (!is.null(resp_obj$url)) {
     utils::download.file(resp_obj$url, destfile = dest_filename, quiet = T, mode = "wb")
-
-  } else{
-    stop('Download response did not contain a valid signed URL')
+  } else {
+    stop("Download response did not contain a valid signed URL")
   }
 }
 
@@ -145,13 +139,15 @@ pluto_download <- function(url_path, dest_filename, api_token=NULL) {
 #'
 #' @param experiment_id URL path (e.g. "lab/projects/?limit=10")
 #' @param file_path Filename of the uploaded file
-#' @returns API response object containing `count`, a count of the total experiments
-#' in the project, and `items`, an array of experiments
+#' @returns A list containing:
+#' \item{session_uri}{The session URL for the file upload}
+#' \item{upload_session_uuid}{The upload session UUID to be used in external analysis creation}
+#' \item{experiment_file}{The file object returned by the API}
+#' \item{resp_obj}{The API response object from the final PUT request}
 pluto_upload <- function(experiment_id, file_path) {
-
   url_path <- paste0("lab/experiments/", experiment_id, "/upload-sessions/")
 
-  file_name <- gsub('\\s', '_', basename(file_path))
+  file_name <- gsub("\\s", "_", basename(file_path))
   file_ext <- file_ext(file_path)
   file_size <- file.info(file_path)$size
 
@@ -170,7 +166,8 @@ pluto_upload <- function(experiment_id, file_path) {
   experiment_file <- resp_obj$file
 
   # Initial PUT request to get uploaded range
-  put_req1 <- httr2::request(session_uri) %>% httr2::req_method("PUT") %>%
+  put_req1 <- httr2::request(session_uri) %>%
+    httr2::req_method("PUT") %>%
     httr2::req_headers("Content-Length" = "0") %>%
     httr2::req_headers("Content-Range" = "bytes */*")
 
@@ -188,9 +185,10 @@ pluto_upload <- function(experiment_id, file_path) {
 
   # Final PUT request to upload the file
   total_size <- file_size
-  put_req2 <- httr2::request(session_uri) %>% httr2::req_method("PUT") %>%
+  put_req2 <- httr2::request(session_uri) %>%
+    httr2::req_method("PUT") %>%
     httr2::req_headers("Content-Length" = as.character(length(file_data))) %>%
-    httr2::req_headers("Content-Range" = paste0("bytes ", start_byte, "-", total_size-1, "/", total_size)) %>%
+    httr2::req_headers("Content-Range" = paste0("bytes ", start_byte, "-", total_size - 1, "/", total_size)) %>%
     httr2::req_body_raw(file_data)
 
   resp2 <- put_req2 %>%
@@ -207,9 +205,9 @@ pluto_upload <- function(experiment_id, file_path) {
     message("Upload successful!")
     return(list(
       session_uri = session_uri,
-      session_uuid = session_uuid,
+      upload_session_uuid = session_uuid, # renamed for consistency with new flow
       experiment_file = experiment_file,
-      resp_obj = resp_obj
+      resp_obj = upload_resp_obj
     ))
   } else {
     stop(paste0("Upload failed with status code: ", resp2$status_code))
