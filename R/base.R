@@ -164,7 +164,7 @@ pluto_upload <- function(experiment_id, file_path) {
   session_uri <- resp_obj$session_url
   session_uuid <- resp_obj$uuid
   experiment_file <- resp_obj$file
-
+  experiment_file_uuid <- resp_obj$file$uuid
   # Initial PUT request to get uploaded range
   put_req1 <- httr2::request(session_uri) %>%
     httr2::req_method("PUT") %>%
@@ -207,6 +207,7 @@ pluto_upload <- function(experiment_id, file_path) {
       session_uri = session_uri,
       upload_session_uuid = session_uuid, # renamed for consistency with new flow
       experiment_file = experiment_file,
+      experiment_file_uuid = experiment_file_uuid,
       resp_obj = upload_resp_obj
     ))
   } else {
