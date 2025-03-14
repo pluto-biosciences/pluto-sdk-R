@@ -87,13 +87,26 @@ pluto_read_experiment_analyses <- function(experiment_id) {
 #' @returns API response for the created analysis object containing `uuid`,
 #' `analysis_type`, `name`, `results`, and `response_status_code`
 create_analysis <- function(experiment_id, uploaded_display_uuid, uploaded_results_uuid = NULL, uploaded_script_uuid = NULL, analysis_name = "External", methods = NULL) {
+
+  # create the plot shell
+  plot_shell <- create_plot_shell(experiment_id)
+  plot_id = plot_shell$uuid
+  display_id = plot_shell$display$uuid
+  print("plot_shell created")
+
+  # create plot shell // https://api.pluto.bio/lab/experiments/c627c313-5e8c-46a3-812f-3241da7816f4/v2/plots/
+  # analysis_type: "external"
+  # display_type: "external"
+  #status: "published"
+
+  # already updload - uuid's passed in
+
+  # upload files (or do that ahead of time)
+  # ensure it completes
+  # data_type: "external"
+  # https://api.pluto.bio/lab/experiments/c627c313-5e8c-46a3-812f-3241da7816f4/upload-sessions/80f7bbab-7692-4de7-bf68-01f6660a991b/complete/
+
   url_path <- paste0("lab/experiments/", experiment_id, "/analyses/")
-  print(experiment_id)
-  print(uploaded_display_uuid)
-  print(uploaded_results_uuid)
-  print(uploaded_script_uuid)
-  print(analysis_name)
-  print(methods)
 
   body_data <- list(
     analysis_type = "external",
@@ -105,17 +118,41 @@ create_analysis <- function(experiment_id, uploaded_display_uuid, uploaded_resul
     methods=methods
   )
 
-  print("body data")
-  print(body_data)
-
 
   # Log the request details
   cat("Creating analysis with the following parameters:\n")
   cat("URL: ", paste0(base_url(), url_path), "\n")
-  cat("Body data:\n")
-  print(body_data)
 
   resp_obj <- pluto_POST(url_path, body_data)
+  print(resp_obj)
+
+  # POST analysis
+  # https://api.pluto.bio/lab/experiments/c627c313-5e8c-46a3-812f-3241da7816f4/analyses/
+  # analysis_type: external
+  # name: External
+  # origin: web
+  # display_file_id: ee59ce8f-7761-4fd4-a3e5-ddb79d6f42b5
+  # results_file_id:
+  # script_file_id:
+  # methods:
+
+  analysis_id = resp_obj$uuid
+
+  # update the plot with the analysis
+  updated_plot_response = update_plot(experiment_id, plot_id, analysis_id)
+
+  # Update Plot
+  # https://api.pluto.bio/lab/experiments/c627c313-5e8c-46a3-812f-3241da7816f4/plots/b34dab0d-478c-4225-819b-1b1aebd32744/
+  # analysis_id: "e7e4b5b3-5860-48ac-aa48-87209be72133"
+
+  linked_analysis_response <- link_analysis(experiment_id, analysis_id, plot_id, display_id)
+  print(linked_analysis_response)
+
+  # Link analysis
+  # https://api.pluto.bio/lab/experiments/c627c313-5e8c-46a3-812f-3241da7816f4/plots/b34dab0d-478c-4225-819b-1b1aebd32744/link-analysis/
+  # analysis_id: "e7e4b5b3-5860-48ac-aa48-87209be72133"
+  # display_id: "a3e62729-73ff-4b43-bce1-bd5a58041ee6"
+
 
   # Log the response
   cat("\nAPI Response:\n")
@@ -162,6 +199,33 @@ create_plot_shell <- function(experiment_id) {
   resp_obj <- pluto_POST(url_path, body_data)
 
   if (resp_obj$response_status_code == 201) {
+    return(resp_obj)
+  } else {
+    stop(paste0("Response: ", resp_obj$response_status_code))
+  }
+}
+
+
+
+#' Internal update external plot display
+#'
+#' @description
+#' Updates a external plot display on an experiment
+#'
+#' @param experiment_id Pluto experiment ID
+#' @param plot_id Pluto plot ID
+#' @param analysis_id Pluto analysis ID
+#' @returns API response for the updated plot object containing
+update_plot <- function(experiment_id, plot_id, analysis_id) {
+  url_path <- paste0("lab/experiments/", experiment_id, "/plots/", plot_id)
+
+  body_data <- list(
+    analysis_id = analysis_id
+  )
+
+  resp_obj <- pluto_PUT(url_path, body_data)
+
+  if (resp_obj$response_status_code == 200) {
     return(resp_obj)
   } else {
     stop(paste0("Response: ", resp_obj$response_status_code))
@@ -322,11 +386,6 @@ update_analysis <- function(experiment_id, analysis_id, analysis_name = NULL,
 pluto_add_experiment_plot <- function(experiment_id, display_file_path, results_file_path = NULL, script_file_path = NULL,
                                       analysis_name = NULL, plot_methods = NULL) {
 
-  linked_analysis_plot_display <- link_analysis(experiment_id = experiment_id,
-                                                analysis_id = analysis_uuid,
-                                                plot_id = plot_uuid,
-                                                display_id = display_uuid)
-
   # Upload plot file to Pluto and obtain the upload session UUID
   uploaded_display <- pluto_upload(experiment_id, display_file_path)
   uploaded_display_uuid <- uploaded_display$experiment_file_uuid
@@ -347,14 +406,6 @@ pluto_add_experiment_plot <- function(experiment_id, display_file_path, results_
   if (is.null(analysis_name)) {
     analysis_name_updated = "External"
   }
-
-  print("pluto_add_experiment_plot data")
-  print(experiment_id)
-  print(uploaded_display_uuid)
-  print(uploaded_results_uuid)
-  print(uploaded_script_uuid)
-  print(analysis_name_updated)
-  print(plot_methods)
 
   # Create external analysis using the upload session UUID
   analysis <- create_analysis(
