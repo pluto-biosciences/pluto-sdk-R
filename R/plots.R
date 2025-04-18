@@ -115,19 +115,21 @@ pluto_get_plot <- function(experiment_id, plot_id, silent = FALSE) {
 #' @param script_file_path Optional, path to the script file to upload
 #' @returns API response for the created plot object
 #' @export
-pluto_create_external_plot <- function(experiment_id, name, methods = NULL,
+pluto_create_external_plot <- function(experiment_id,
+                                       analysis_name,
+                                       analysis_methods = NULL,
                                        display_file_path = NULL,
                                        results_file_path = NULL,
                                        script_file_path = NULL) {
   # Prepare the request body
   body_data <- list(
-    name = name,
+    name = analysis_name,
     origin = "R"
   )
 
   # Add optional methods if provided
-  if (!is.null(methods)) {
-    body_data$methods <- methods
+  if (!is.null(analysis_methods)) {
+    body_data$methods <- analysis_methods
   }
 
   # Upload files if paths are provided and add file IDs to the request
@@ -246,28 +248,20 @@ pluto_update_external_plot <- function(experiment_id, plot_id, name = NULL, meth
 #' @param analysis_name Deprecated, use name instead. String, a title for the new plot
 #' @param plot_methods Deprecated, use methods instead. String, a description of the methods used for making the plot
 #' @export
-pluto_add_experiment_plot <- function(experiment_id, display_file_path,
+pluto_add_experiment_plot <- function(experiment_id,
+                                      display_file_path,
                                       results_file_path = NULL,
                                       script_file_path = NULL,
-                                      name = NULL, methods = NULL,
-                                      analysis_name = NULL, plot_methods = NULL) {
-  # For backward compatibility, use analysis_name if name is NULL
-  if (is.null(name) && !is.null(analysis_name)) {
-    name <- analysis_name
-  }
-
-  # For backward compatibility, use plot_methods if methods is NULL
-  if (is.null(methods) && !is.null(plot_methods)) {
-    methods <- plot_methods
-  }
+                                      analysis_name = NULL,
+                                      analysis_methods = NULL) {
 
   # Use the new simplified endpoint
-  return(pluto_create_external_plot(
+  pluto_create_external_plot(
     experiment_id = experiment_id,
-    name = name,
-    methods = methods,
+    name = analysis_name,
+    methods = analysis_methods,
     display_file_path = display_file_path,
     results_file_path = results_file_path,
     script_file_path = script_file_path
-  ))
+  )
 }
