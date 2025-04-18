@@ -108,8 +108,8 @@ pluto_get_plot <- function(experiment_id, plot_id, silent = FALSE) {
 #' Creates a new external plot in a Pluto experiment with optional display, results, and script files
 #'
 #' @param experiment_id Pluto experiment ID
-#' @param name Name for the plot
-#' @param methods Optional, text methods describing the plot
+#' @param analysis_name Name for the plot
+#' @param analysis_methods Optional, text methods describing the plot
 #' @param display_file_path Optional, path to the display file to upload
 #' @param results_file_path Optional, path to the results file to upload
 #' @param script_file_path Optional, path to the script file to upload
@@ -243,8 +243,6 @@ pluto_update_external_plot <- function(experiment_id, plot_id, name = NULL, meth
 #' @param display_file_path Path to the .html or image file containing a plot to push to Pluto
 #' @param results_file_path Optional, path to the .csv file containing results to push to Pluto
 #' @param script_file_path Optional, path to the script file used to generate the plot
-#' @param name String, a title for the new plot (can also use analysis_name for backward compatibility)
-#' @param methods String, a description of the methods used for making the plot (can also use plot_methods for backward compatibility)
 #' @param analysis_name Deprecated, use name instead. String, a title for the new plot
 #' @param plot_methods Deprecated, use methods instead. String, a description of the methods used for making the plot
 #' @export

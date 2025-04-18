@@ -6,8 +6,8 @@
 \usage{
 pluto_create_external_plot(
   experiment_id,
-  name,
-  methods = NULL,
+  analysis_name,
+  analysis_methods = NULL,
   display_file_path = NULL,
   results_file_path = NULL,
   script_file_path = NULL
@@ -16,9 +16,9 @@ pluto_create_external_plot(
 \arguments{
 \item{experiment_id}{Pluto experiment ID}
 
-\item{name}{Name for the plot}
+\item{analysis_name}{Name for the plot}
 
-\item{methods}{Optional, text methods describing the plot}
+\item{analysis_methods}{Optional, text methods describing the plot}
 
 \item{display_file_path}{Optional, path to the display file to upload}
 

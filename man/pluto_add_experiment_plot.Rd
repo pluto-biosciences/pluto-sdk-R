@@ -9,10 +9,8 @@ pluto_add_experiment_plot(
   display_file_path,
   results_file_path = NULL,
   script_file_path = NULL,
-  name = NULL,
-  methods = NULL,
   analysis_name = NULL,
-  plot_methods = NULL
+  analysis_methods = NULL
 )
 }
 \arguments{
@@ -23,10 +21,6 @@ pluto_add_experiment_plot(
 \item{results_file_path}{Optional, path to the .csv file containing results to push to Pluto}
 
 \item{script_file_path}{Optional, path to the script file used to generate the plot}
-
-\item{name}{String, a title for the new plot (can also use analysis_name for backward compatibility)}
-
-\item{methods}{String, a description of the methods used for making the plot (can also use plot_methods for backward compatibility)}
 
 \item{analysis_name}{Deprecated, use name instead. String, a title for the new plot}
 
