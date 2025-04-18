@@ -1,159 +1,52 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/404.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/authentication.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/data_integration.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/get_started.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/pluto_models.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/rnaseq_recipes.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/scrnaseq_recipes.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/index.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/add_cluster_annotations.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/create_analysis.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/create_plot_shell.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/export_plotly_to_html.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/link_analysis.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto-package.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_GET.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_POST.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_PUT.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_add_experiment_plot.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download_assay_data.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download_results.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download_sample_data.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download_seurat_object.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_cluster_annotation_sets.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiment.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiment_analyses.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiment_data.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiment_plots.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiments_all.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_plot.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_project.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_project_experiments.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_projects_all.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_results.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_seurat_object.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_is_logged_in.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_login.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_logout.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_assay_data.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_data.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_experiment_analyses.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_project_experiments.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_results.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_sample_data.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_seurat_object.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_upload.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/update_analysis.html</loc>
-  </url>
-  <url>
-    <loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/update_plot_display.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/404.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/authentication.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/data_integration.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/get_started.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/index.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/pluto_models.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/rnaseq_recipes.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/articles/scrnaseq_recipes.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/authors.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/index.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/news/index.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/add_cluster_annotations.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/export_plotly_to_html.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/index.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto-package.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_GET.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_POST.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_PUT.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_add_experiment_plot.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_create_external_plot.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download_assay_data.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download_results.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download_sample_data.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_download_seurat_object.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_cluster_annotation_sets.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiment.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiment_analyses.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiment_data.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiment_plots.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_experiments_all.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_plot.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_project.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_project_experiments.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_projects_all.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_results.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_get_seurat_object.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_is_logged_in.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_login.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_logout.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_assay_data.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_data.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_experiment_analyses.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_project_experiments.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_results.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_sample_data.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_read_seurat_object.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_update_external_plot.html</loc></url>
+<url><loc>https://pluto-biosciences.github.io/pluto-sdk-R/reference/pluto_upload.html</loc></url>
 </urlset>
+

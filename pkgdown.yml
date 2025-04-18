@@ -1,5 +1,5 @@
-pandoc: 2.19.2
-pkgdown: 2.0.7
+pandoc: 3.1.11
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   authentication: authentication.html
@@ -8,8 +8,7 @@ articles:
   pluto_models: pluto_models.html
   rnaseq_recipes: rnaseq_recipes.html
   scrnaseq_recipes: scrnaseq_recipes.html
-last_built: 2024-02-02T23:57Z
+last_built: 2025-04-18T17:56Z
 urls:
   reference: https://pluto-biosciences.github.io/pluto-sdk-R/reference
   article: https://pluto-biosciences.github.io/pluto-sdk-R/articles
-
