@@ -22,9 +22,9 @@ pluto_add_experiment_plot(
 
 \item{script_file_path}{Optional, path to the script file used to generate the plot}
 
-\item{analysis_name}{Deprecated, use name instead. String, a title for the new plot}
+\item{analysis_name}{String, a title for the new plot}
 
-\item{plot_methods}{Deprecated, use methods instead. String, a description of the methods used for making the plot}
+\item{analysis_methods}{String, a description of the methods used for making the plot}
 }
 \description{
 Uploads an HTML or image plot with optional information to a Pluto experiment.

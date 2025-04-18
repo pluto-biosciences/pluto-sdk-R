@@ -31,9 +31,9 @@ pluto_update_external_plot(
 
 \item{script_file_path}{Optional, path to the new script file to upload}
 
-\item{analysis_name}{Deprecated, use name instead. Optional, new name for the plot}
+\item{analysis_name}{Optional, new name for the plot}
 
-\item{plot_methods}{Deprecated, use methods instead. Optional, text methods describing the plot}
+\item{plot_methods}{Optional, text methods describing the plot}
 }
 \value{
 API response for the updated plot object
