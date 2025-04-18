@@ -140,6 +140,7 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL,
 
   api_token <- Sys.getenv('PLUTO_API_TOKEN')
   validate_auth(api_token)
+  validate_experiment_id(experiment_id)
 
   if (!is.null(limit)){
     paginated <- TRUE
@@ -290,6 +291,7 @@ pluto_get_seurat_object <- function(experiment_id, seurat_type, silent = FALSE){
 
   api_token <- Sys.getenv('PLUTO_API_TOKEN')
   validate_auth(api_token)
+  validate_experiment_id(experiment_id)
 
   temp_filename <- tempfile()
   pluto_download_seurat_object(experiment_id, seurat_type, dest_filename = temp_filename)

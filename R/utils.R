@@ -4,26 +4,6 @@ is_alphanumeric <- function(input_string){
   return(grepl("^[[:alnum:]]+$", input_string))
 }
 
-validate_auth <- function(api_token){
-  if (!is_valid_api_key(api_token)){
-    stop("Invalid API token. Check your PLUTO_API_TOKEN environment variable.")
-  }
-}
-
-quiet_message <- function(silent, message){
-  if (!silent){
-    return(message(message))
-  }
-}
-
-null_to_na <- function(value){
-  if (is.null(value)){
-    return(NA)
-  } else{
-    return(value)
-  }
-}
-
 is_valid_api_key <- function(api_key){
 
   # Check that API key is alphanumeric
@@ -39,6 +19,50 @@ is_valid_api_key <- function(api_key){
   # TODO add API call to validate
 
   return(TRUE)
+}
+
+validate_auth <- function(api_token){
+  if (!is_valid_api_key(api_token)){
+    stop("Invalid API token. Check your PLUTO_API_TOKEN environment variable.")
+  }
+}
+
+is_valid_experiment_id <- function(experiment_id){
+
+  # Check that API key is alphanumeric
+  if (!is_alphanumeric(experiment_id)){
+    return(FALSE)
+  }
+
+  # Check that length of API key is correct
+  if (length(strsplit(experiment_id, '')[[1]]) != 9){
+    return(FALSE)
+  }
+
+  # TODO add API call to validate that experiment is in user's org
+  # and they have permission to request
+
+  return(TRUE)
+}
+
+validate_experiment_id <- function(experiment_id){
+  if (!is_valid_experiment_id(experiment_id)){
+    stop("Invalid experiment ID provided: ", experiment_id)
+  }
+}
+
+quiet_message <- function(silent, message){
+  if (!silent){
+    return(message(message))
+  }
+}
+
+null_to_na <- function(value){
+  if (is.null(value)){
+    return(NA)
+  } else{
+    return(value)
+  }
 }
 
 clean_row <- function(row){

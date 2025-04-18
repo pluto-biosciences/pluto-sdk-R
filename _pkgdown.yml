@@ -71,27 +71,24 @@ reference:
     desc: "Function for saving Seurat objects from Pluto"
     contents:
       - pluto_download_seurat_object
+      - pluto_get_seurat_object
+      - pluto_get_cluster_annotation_sets
+      - add_cluster_annotations
   - title: "Uploading to Pluto"
     desc: "Functions for pushing plots and tables back into a Pluto experiment"
     contents:
-      - matches("export_plotly_to_html")
-      - matches("pluto_add_experiment_plot")
+      - export_plotly_to_html
+      - pluto_add_experiment_plot
+      - pluto_create_external_plot
+      - pluto_update_external_plot
   - title: "API interactions"
     desc: "Functions returning a full, JSON-like response"
     contents:
       - starts_with("pluto_get")
   - title: internal
     contents:
-      - create_analysis
-      - create_plot_shell
-      - link_analysis
-      - update_analysis
-      - update_plot_display
       - pluto_GET
       - pluto_POST
       - pluto_PUT
       - pluto_download
       - pluto_upload
-      - pluto_get_seurat_object
-      - pluto_get_cluster_annotation_sets
-      - add_cluster_annotations
