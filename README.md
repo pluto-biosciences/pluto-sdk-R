@@ -74,8 +74,16 @@ Check in the updated `.Renviron.encrypted` when opening a PR so that other devel
 
 #### Running tests
 
-To run tests: `devtools::test()`
+When testing and making changes, you'll frequently want to run `devtools::load_all()` to load all of the most recent changes to all functions.
+
+To run all tests: `devtools::test()`
 
 Note that most tests in the test suite are integration tests, so they require a specific API token and uuids present in the `.Renviron` file.
 
+To run a single test: `devtools::test_active_file("tests/testthat/<R script name>")` for example `devtools::test_active_file("tests/testthat/test-projects.R")`
+
+#### Documentation & vignettes
+
 To build pkgdown site: `pkgdown::build_site()`
+
+To update man pages / documentation after editing functions: `devtools::document()`

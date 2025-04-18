@@ -180,7 +180,8 @@ pluto_update_external_plot <- function(experiment_id, plot_id, name = NULL, meth
                                        display_file_path = NULL,
                                        results_file_path = NULL,
                                        script_file_path = NULL,
-                                       analysis_name = NULL, plot_methods = NULL) {
+                                       analysis_name = NULL,
+                                       plot_methods = NULL) {
   # For backward compatibility, use analysis_name if name is NULL
   if (is.null(name) && !is.null(analysis_name)) {
     name <- analysis_name
@@ -256,8 +257,8 @@ pluto_add_experiment_plot <- function(experiment_id,
   # Use the new simplified endpoint
   pluto_create_external_plot(
     experiment_id = experiment_id,
-    name = analysis_name,
-    methods = analysis_methods,
+    analysis_name = analysis_name,
+    analysis_methods = analysis_methods,
     display_file_path = display_file_path,
     results_file_path = results_file_path,
     script_file_path = script_file_path
