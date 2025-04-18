@@ -18,13 +18,12 @@ test_that("unauthorized response has correct structure", {
   expect_null(sample_data$df)
 })
 
-test_that("experiment doesn't exist", {
+test_that("experiment ID not valid throws error", {
   skip_on_cran()
   Sys.setenv(PLUTO_API_TOKEN=TESTTHAT_API_TOKEN)
-  sample_data <- pluto_get_experiment_data(experiment_id = "PLXBAD", table_type = "sample",
-                              limit = 10, silent = T)
-  expect_equal(sample_data$status_code, 400)
-  expect_null(sample_data$df)
+  expect_error(pluto_get_experiment_data(experiment_id = "PLXBAD", table_type = "sample",
+                              limit = 10, silent = T))
+
 })
 
 test_that("nonpaginated limit works", {

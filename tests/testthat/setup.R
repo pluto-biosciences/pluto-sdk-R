@@ -6,7 +6,10 @@ Sys.setenv(PLUTO_ENV="staging")
 TESTTHAT_API_TOKEN <- Sys.getenv("PLUTO_TEST_API_TOKEN")
 TESTTHAT_INVALID_API_TOKEN <- Sys.getenv("PLUTO_INVALID_API_TOKEN")
 
-NUM_PROJS <- 4
+# There is 1 project containing toy data,
+# 1 project for testing creating expts and analyses,
+# and 1 empty project
+NUM_PROJS <- 3
 TESTTHAT_EMPTY_PROJ_ID <- Sys.getenv("EMPTY_PROJECT_ID")
 TESTTHAT_NONEMPTY_PROJ_ID <- Sys.getenv("NONEMPTY_PROJECT_ID")
 NUM_ALL_EXPTS <- 7
