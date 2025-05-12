@@ -102,17 +102,20 @@ library(ggridges)
 
 ### Dimensional reduction plot
 
-Using the `Seurat` `DimPlot()` function, make a scatter plot in UMAP space grouping cells by custom annotation set "Default cluster - res. 1.0" (here, we can use one of our custom color palettes that we defined in the Pluto app): 
+Using the `Seurat` `DimPlot()` function, make a scatter plot in UMAP space grouping cells by custom annotation set "Default cluster - res. 0.1" (here, we can use one of our custom color palettes that we defined in the Pluto app): 
 
 ```{r, eval = FALSE}
 DimPlot(so, # the Seurat object
-        reduction = "umap", # could also be "tsne" or "pca"
-        group.by = "default_clusters_res_0_1", # custom annotation set
-        cols = custom_palettes$default_clusters_res_0_1, # custom color palette
-        pt.size = 0.1) + # point size for plotting
-  labs(title = "Default clusters - res. 0.1", # update plot title
-       x = "UMAP 1", # update x-axis label
-       y = "UMAP 2") # update y-axis label
+     reduction = "umap", # could also be "tsne" or "pca"
+     group.by = "default_clusters_res_0_1", # custom annotation set
+     cols = custom_palettes$default_clusters_res_0_1, # custom color palette
+     pt.size = 0.1
+) + # point size for plotting
+     labs(
+          title = "Default clusters - res. 0.1", # update plot title
+          x = "UMAP 1", # update x-axis label
+          y = "UMAP 2"
+     ) # update y-axis label
 ```
 
 <img src="https://cdn.bfldr.com/2Q1IPX6I/at/cv9v8qtfswrqvq69gh58swqb/scrnaseq_vignette_dimplot_group_clusters_example" height="450">
@@ -125,29 +128,35 @@ timepoint_cols <- c("#14b8a6", "#fcd34d", "#ef4444")
 names(timepoint_cols) <- c("24hpf", "36hpf", "48hpf")
 
 DimPlot(so, # the Seurat object
-        reduction = "umap", # could also be "tsne" or "pca"
-        group.by = "timepoint", # available column in our meta.data, from our Pluto sample data
-        cols = timepoint_cols,
-        pt.size = 0.1) + # point size for plotting
-  labs(title = "Timepoint", # update plot title
-       x = "UMAP 1", # update x-axis label
-       y = "UMAP 2") # update y-axis label
+     reduction = "umap", # could also be "tsne" or "pca"
+     group.by = "timepoint", # available column in our meta.data, from our Pluto sample data
+     cols = timepoint_cols,
+     pt.size = 0.1
+) + # point size for plotting
+     labs(
+          title = "Timepoint", # update plot title
+          x = "UMAP 1", # update x-axis label
+          y = "UMAP 2"
+     ) # update y-axis label
 ```
 
 <img src="https://cdn.bfldr.com/2Q1IPX6I/at/fkgzgx77673w98smxnv3vcw/scrnaseq_vignette_dimplot_group_timepoint_example" height="450">
 
-Using the `Seurat` `DimPlot()` function, make a scatter plot in UMAP space grouping cells by custom annotation set "Default cluster - res. 1.0" and splitting cells by timepoint: 
+Using the `Seurat` `DimPlot()` function, make a scatter plot in UMAP space grouping cells by custom annotation set "Default cluster - res. 0.1" and splitting cells by timepoint: 
 
 ```{r, eval = FALSE}
 DimPlot(so, # the Seurat object
-        reduction = "umap", # could also be "tsne" or "pca"
-        group.by = "default_clusters_res_0_1", # custom annotation set
-        cols = custom_palettes$default_clusters_res_0_1, # custom color palette
-        split.by = "timepoint", # custom annotation set
-        pt.size = 0.1) + # point size for plotting
-  labs(title = "Default clusters - res. 0.1", # update plot title
-       x = "UMAP 1", # update x-axis label
-       y = "UMAP 2") # update y-axis label
+     reduction = "umap", # could also be "tsne" or "pca"
+     group.by = "default_clusters_res_0_1", # custom annotation set
+     cols = custom_palettes$default_clusters_res_0_1, # custom color palette
+     split.by = "timepoint", # custom annotation set
+     pt.size = 0.1
+) + # point size for plotting
+     labs(
+          title = "Default clusters - res. 0.1", # update plot title
+          x = "UMAP 1", # update x-axis label
+          y = "UMAP 2"
+     ) # update y-axis label
 ```
 
 <img src="https://cdn.bfldr.com/2Q1IPX6I/at/xwb7wrp834tm2fh9mj9s3gnp/scrnaseq_vignette_dimplot_group_split_example" height="450">
@@ -156,31 +165,37 @@ DimPlot(so, # the Seurat object
 
 #### Violin plot
 
-Using the `Seurat` `VlnPlot()` function, make a violin plot grouping cells by custom annotation set "Default cluster - res. 1.0": 
+Using the `Seurat` `VlnPlot()` function, make a violin plot grouping cells by custom annotation set "Default cluster - res. 0.1": 
 
 ```{r, eval = FALSE}
 VlnPlot(so, # the Seurat object
-        features = c("olig2"), # feature(s) of interest
-        group.by = "default_clusters_res_0_1", # custom annotation set
-        cols = custom_palettes$default_clusters_res_0_1) + # custom color palette
-  labs(title = "Expression of olig2", # update plot title
-       x = "Default clusters - res. 0.1") # update x-axis label
+     features = c("olig2"), # feature(s) of interest
+     group.by = "default_clusters_res_0_1", # custom annotation set
+     cols = custom_palettes$default_clusters_res_0_1
+) + # custom color palette
+     labs(
+          title = "Expression of olig2", # update plot title
+          x = "Default clusters - res. 0.1"
+     ) # update x-axis label
 ```
 
 <img src="https://cdn.bfldr.com/2Q1IPX6I/at/b72z4b34hs68s3c7fksn9s2h/scrnaseq_vignette_vlnplot_example" height="450">
 
 #### Ridge plot
 
-Using the `Seurat` `RidgePlot()` function, make a ridge plot grouping cells by custom annotation set "Default cluster - res. 1.0": 
+Using the `Seurat` `RidgePlot()` function, make a ridge plot grouping cells by custom annotation set "Default cluster - res. 0.1": 
 
 ```{r, eval = FALSE}
 RidgePlot(so, # the Seurat object
-          features = c("olig2"), # feature(s) of interest
-          group.by = "default_clusters_res_0_1", # custom annotation set
-          cols = custom_palettes$default_clusters_res_0_1) + # custom color palette
-  labs(title = "Expression of olig2", # update plot title
-       y = "Default clusters - res. 0.1") + # update x-axis label
-  theme_ridges(center = TRUE) # center the x and y axis labels
+     features = c("olig2"), # feature(s) of interest
+     group.by = "default_clusters_res_0_1", # custom annotation set
+     cols = custom_palettes$default_clusters_res_0_1
+) + # custom color palette
+     labs(
+          title = "Expression of olig2", # update plot title
+          y = "Default clusters - res. 0.1"
+     ) + # update x-axis label
+     theme_ridges(center = TRUE) # center the x and y axis labels
 ```
 
 <img src="https://cdn.bfldr.com/2Q1IPX6I/at/283m8qq88ns5nqf5gt5wv37x/scrnaseq_vignette_ridgeplot_example" height="450">
@@ -191,12 +206,15 @@ Using the `Seurat` `FeaturePlot()` function, make a scatter plot in UMAP space c
 
 ```{r, eval = FALSE}
 FeaturePlot(so, # the Seurat object
-            features = c("olig2"), # feature(s) of interest
-            reduction = "umap", # could also be "tsne" or "pca"
-            pt.size = 0.1) + # point size for plotting
-  labs(title = "Expression of olig2", # update plot title
-       x = "UMAP 1", # update x-axis label
-       y = "UMAP 2") # update y-axis label
+     features = c("olig2"), # feature(s) of interest
+     reduction = "umap", # could also be "tsne" or "pca"
+     pt.size = 0.1
+) + # point size for plotting
+     labs(
+          title = "Expression of olig2", # update plot title
+          x = "UMAP 1", # update x-axis label
+          y = "UMAP 2"
+     ) # update y-axis label
 ```
 
 <img src="https://cdn.bfldr.com/2Q1IPX6I/at/hksqknxt4tn3c9p4bq8x3t9/scrnaseq_vignette_featureplot_example" height="450">
@@ -207,11 +225,14 @@ Using the `Seurat` `DotPlot()` function, make a dot plot colored by feature expr
 
 ```{r, eval = FALSE}
 DotPlot(so, # the Seurat object
-        features = c("olig2", "sox19a", "gfap", "dlb", "nkx2.2a"), # feature(s) of interest
-        group.by = "default_clusters_res_0_1") + # custom annotation set
-  labs(title = "Key marker genes", # update plot title
-       x = "Genes", # update x-axis label
-       y = "Default clusters - res. 0.1") # update y-axis label
+     features = c("olig2", "sox19a", "gfap", "dlb", "nkx2.2a"), # feature(s) of interest
+     group.by = "default_clusters_res_0_1"
+) + # custom annotation set
+     labs(
+          title = "Key marker genes", # update plot title
+          x = "Genes", # update x-axis label
+          y = "Default clusters - res. 0.1"
+     ) # update y-axis label
 ```
 
 <img src="https://cdn.bfldr.com/2Q1IPX6I/at/x8h97bhq72mxqcqgrvbkkf5/scrnaseq_vignette_dotplot_example" height="450">
