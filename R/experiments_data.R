@@ -1,118 +1,123 @@
 # EXPERIMENTS DATA ENDPOINTS
 
 pluto_get_experiment_data_paginated <- function(experiment_id, table_type,
-                                                limit = NULL, silent = FALSE){
-
+                                                limit = NULL, silent = FALSE) {
   page_size <- 10000
 
-  if (table_type == 'sample'){
-    endpoint <- '/sample-data/'
-
-  } else if (table_type == 'assay'){
-    endpoint <- '/assay-data/'
-
-  } else{
+  if (table_type == "sample") {
+    endpoint <- "/sample-data/"
+  } else if (table_type == "assay") {
+    endpoint <- "/assay-data/"
+  } else {
     stop("Unsupported table_type Supported data table types are 'sample', 'assay'.")
   }
 
-  if (!is.null(limit)){
-    url_path <- paste0('lab/experiments/',
-                       experiment_id, endpoint, '?limit=', format(limit, scientific=F))
-  } else{
-    url_path <- paste0('lab/experiments/',
-                       experiment_id, endpoint, '?limit=', page_size)
+  if (!is.null(limit)) {
+    url_path <- paste0(
+      "lab/experiments/",
+      experiment_id, endpoint, "?limit=", format(limit, scientific = F)
+    )
+  } else {
+    url_path <- paste0(
+      "lab/experiments/",
+      experiment_id, endpoint, "?limit=", page_size
+    )
   }
 
   resp_obj <- pluto_GET(url_path)
 
-  if (resp_obj$response_status_code == 200){
-
+  if (resp_obj$response_status_code == 200) {
     # Calculate whether we need to paginate
     total_count <- resp_obj$count
 
-    if (!is.null(limit)){
-
-      if (total_count <= limit){
+    if (!is.null(limit)) {
+      if (total_count <= limit) {
         quiet_message(silent,
-                      message = c('All ', total_count, ' rows of the ', table_type, ' data were fetched.'))
-      } else{
+          message = c("All ", total_count, " rows of the ", table_type, " data were fetched.")
+        )
+      } else {
         quiet_message(silent,
-                      message = c('Note: Data has ', total_count, ' rows but only ', limit,
-                                  ' will be fetched due to the provided "limit" parameter.',
-                                  '\nIncrease or remove the "limit" parameter if more rows are desired.'))
+          message = c(
+            "Note: Data has ", total_count, " rows but only ", limit,
+            ' will be fetched due to the provided "limit" parameter.',
+            '\nIncrease or remove the "limit" parameter if more rows are desired.'
+          )
+        )
       }
 
       final_df <- data_response_to_df(resp_obj)
-
-    } else{
-
+    } else {
       final_df <- data_response_to_df(resp_obj)
 
-      if (total_count <= page_size){
+      if (total_count <= page_size) {
         quiet_message(silent,
-                      message = c('All ', total_count, ' rows of the ', table_type, ' data were fetched.'))
-
-      } else{
+          message = c("All ", total_count, " rows of the ", table_type, " data were fetched.")
+        )
+      } else {
         quiet_message(silent,
-                      message = c('Paginating API calls to retrieve all ', total_count,
-                                  ' rows in the ', table_type, ' data in batches of ',
-                                  page_size, ' rows...'))
+          message = c(
+            "Paginating API calls to retrieve all ", total_count,
+            " rows in the ", table_type, " data in batches of ",
+            page_size, " rows..."
+          )
+        )
 
         # Parallelized requests
         offsets <- seq(page_size, total_count, by = page_size)
 
-        paginated_url_paths <- paste0('https://api.pluto.bio/lab/experiments/',
-                                      experiment_id, endpoint,
-                                      '?limit=', page_size,
-                                      '&offset=', offsets)
-        if (is.null(api_token)){
-          api_token <- Sys.getenv('PLUTO_API_TOKEN')
+        paginated_url_paths <- paste0(
+          "https://api.pluto.bio/lab/experiments/",
+          experiment_id, endpoint,
+          "?limit=", page_size,
+          "&offset=", offsets
+        )
+        if (is.null(api_token)) {
+          api_token <- Sys.getenv("PLUTO_API_TOKEN")
         }
-        reqs <- lapply(paginated_url_paths, function(u){
+        reqs <- lapply(paginated_url_paths, function(u) {
           httr2::request(u) %>%
-            httr2::req_headers(Authorization = paste0('Token ', api_token))
+            httr2::req_headers(Authorization = paste0("Token ", api_token))
         })
 
         resps <- httr2::multi_req_perform(reqs)
 
         paginated_resp_objs <- c()
 
-        for (paginated_resp in resps){
-
-          if (paginated_resp$status_code == 200){
+        for (paginated_resp in resps) {
+          if (paginated_resp$status_code == 200) {
             paginated_resp_objs <- c(paginated_resp_objs, httr2::resp_body_json(paginated_resp))
-
-          } else{
-            stop(paste0('Response: ', paginated_resp$status_code))
+          } else {
+            stop(paste0("Response: ", paginated_resp$status_code))
           }
         }
 
-        final_df <- rbind(final_df,
-                          do.call(data_response_to_df, list(paginated_resp_objs)))
-
+        final_df <- rbind(
+          final_df,
+          do.call(data_response_to_df, list(paginated_resp_objs))
+        )
       }
     }
 
-    if (table_type == 'sample'){
+    if (table_type == "sample") {
       names(final_df) <- tolower(names(final_df))
     }
-    if (table_type == 'assay'){
+    if (table_type == "assay") {
       names(final_df)[1] <- tolower(names(final_df)[1])
     }
     return(
       list(
         status_code = resp_obj$response_status_code,
-        df = final_df)
+        df = final_df
+      )
     )
-
   } else {
     return(
       list(
         status_code = resp_obj$response_status_code,
-        df = NULL)
+        df = NULL
+      )
     )
   }
-
 }
 
 #' Get sample or assay data tables from Pluto
@@ -136,18 +141,16 @@ pluto_get_experiment_data_paginated <- function(experiment_id, table_type,
 #' @importFrom utils read.csv
 #' @export
 pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL,
-                                      silent = FALSE, paginated = FALSE){
-
-  api_token <- Sys.getenv('PLUTO_API_TOKEN')
+                                      silent = FALSE, paginated = FALSE) {
+  api_token <- Sys.getenv("PLUTO_API_TOKEN")
   validate_auth(api_token)
   validate_experiment_id(experiment_id)
 
-  if (!is.null(limit)){
+  if (!is.null(limit)) {
     paginated <- TRUE
   }
 
-  if (!paginated){
-
+  if (!paginated) {
     # If not paginating, download the whole file and read the CSV into a data.frame
     temp_filename <- tempfile()
     pluto_download_data(experiment_id, table_type, dest_filename = temp_filename)
@@ -157,10 +160,10 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL,
     return(
       list(
         status_code = 200,
-        df = final_df)
+        df = final_df
+      )
     )
-
-  } else{
+  } else {
     pluto_get_experiment_data_paginated(experiment_id, table_type, limit, silent)
   }
 }
@@ -178,7 +181,7 @@ pluto_get_experiment_data <- function(experiment_id, table_type, limit = NULL,
 #' @param silent Boolean, whether to suppress console messages
 #' @returns Data.frame containing the requested data
 #' @export
-pluto_read_data <- function(experiment_id, table_type, limit = NULL, silent = FALSE){
+pluto_read_data <- function(experiment_id, table_type, limit = NULL, silent = FALSE) {
   data_obj <- pluto_get_experiment_data(experiment_id, table_type, limit, silent)
   return(data_obj$df)
 }
@@ -195,7 +198,7 @@ pluto_read_data <- function(experiment_id, table_type, limit = NULL, silent = FA
 #' @param silent Boolean, whether to suppress console messages
 #' @returns Data.frame containing the requested data
 #' @export
-pluto_read_sample_data <- function(experiment_id, limit = NULL, silent = FALSE){
+pluto_read_sample_data <- function(experiment_id, limit = NULL, silent = FALSE) {
   return(pluto_read_data(experiment_id, table_type = "sample", limit, silent))
 }
 
@@ -211,32 +214,30 @@ pluto_read_sample_data <- function(experiment_id, limit = NULL, silent = FALSE){
 #' @param silent Boolean, whether to suppress console messages
 #' @returns Data.frame containing the requested data
 #' @export
-pluto_read_assay_data <- function(experiment_id, limit = NULL, silent = FALSE){
+pluto_read_assay_data <- function(experiment_id, limit = NULL, silent = FALSE) {
   return(pluto_read_data(experiment_id, table_type = "assay", limit, silent))
 }
 
 
-pluto_download_data <- function(experiment_id, table_type, dest_filename = NULL){
-
-  if (table_type == 'sample'){
-    endpoint <- '/sample-data/'
-
-  } else if (table_type == 'assay'){
-    endpoint <- '/assay-data/'
-
-  } else{
+pluto_download_data <- function(experiment_id, table_type, dest_filename = NULL) {
+  if (table_type == "sample") {
+    endpoint <- "/sample-data/"
+  } else if (table_type == "assay") {
+    endpoint <- "/assay-data/"
+  } else {
     stop("Unsupported table_type Supported data table types are 'sample', 'assay'.")
   }
 
-  if (is.null(dest_filename)){
+  if (is.null(dest_filename)) {
     dest_filename <- paste0(experiment_id, "_", table_type, "_data.csv")
   }
 
-  url_path <- paste0("lab/experiments/", experiment_id,
-                     endpoint, "download/?filename=", dest_filename)
+  url_path <- paste0(
+    "lab/experiments/", experiment_id,
+    endpoint, "download/?filename=", dest_filename
+  )
 
   pluto_download(url_path, dest_filename)
-
 }
 
 
@@ -250,7 +251,7 @@ pluto_download_data <- function(experiment_id, table_type, dest_filename = NULL)
 #' @param dest_filename Destination filename for CSV file (e.g. "PLX12345_sample_data.csv")
 #' @returns Saves the downloaded data to `dest_filename`
 #' @export
-pluto_download_sample_data <- function(experiment_id, dest_filename = NULL){
+pluto_download_sample_data <- function(experiment_id, dest_filename = NULL) {
   pluto_download_data(experiment_id, table_type = "sample", dest_filename)
 }
 
@@ -265,7 +266,7 @@ pluto_download_sample_data <- function(experiment_id, dest_filename = NULL){
 #' @param dest_filename Destination filename for CSV file (e.g. "PLX12345_assay_data.csv")
 #' @returns Saves the downloaded data to `dest_filename`
 #' @export
-pluto_download_assay_data <- function(experiment_id, dest_filename = NULL){
+pluto_download_assay_data <- function(experiment_id, dest_filename = NULL) {
   pluto_download_data(experiment_id, table_type = "assay", dest_filename)
 }
 
@@ -287,9 +288,8 @@ pluto_download_assay_data <- function(experiment_id, dest_filename = NULL){
 #'    \code{message} \tab Additional details \cr
 #' }
 #' @export
-pluto_get_seurat_object <- function(experiment_id, seurat_type, silent = FALSE){
-
-  api_token <- Sys.getenv('PLUTO_API_TOKEN')
+pluto_get_seurat_object <- function(experiment_id, seurat_type, silent = FALSE) {
+  api_token <- Sys.getenv("PLUTO_API_TOKEN")
   validate_auth(api_token)
   validate_experiment_id(experiment_id)
 
@@ -301,9 +301,9 @@ pluto_get_seurat_object <- function(experiment_id, seurat_type, silent = FALSE){
   return(
     list(
       status_code = 200,
-      obj = final_obj)
+      obj = final_obj
+    )
   )
-
 }
 
 
@@ -323,8 +323,7 @@ pluto_get_seurat_object <- function(experiment_id, seurat_type, silent = FALSE){
 #'    \code{message} \tab Additional details \cr
 #' }
 #' @export
-pluto_get_cluster_annotation_sets <- function(experiment_id, silent = FALSE){
-
+pluto_get_cluster_annotation_sets <- function(experiment_id, silent = FALSE) {
   endpoint <- "/annotation-sets"
   url_path <- paste0("lab/experiments/", experiment_id, endpoint)
   final_obj <- pluto_GET(url_path)
@@ -332,9 +331,9 @@ pluto_get_cluster_annotation_sets <- function(experiment_id, silent = FALSE){
   return(
     list(
       status_code = 200,
-      obj = final_obj[1:length(final_obj)-1])
+      obj = final_obj[1:length(final_obj) - 1]
+    )
   )
-
 }
 
 
@@ -349,8 +348,7 @@ pluto_get_cluster_annotation_sets <- function(experiment_id, silent = FALSE){
 #' @param silent Boolean, whether to suppress console messages
 #' @returns A list containing `obj`, the Seurat object with added cluster annotations, and `colors`, a list containing custom cluster color palettes
 #' @export
-add_cluster_annotations <- function(seurat_obj, cluster_obj, silent = FALSE){
-
+add_cluster_annotations <- function(seurat_obj, cluster_obj, silent = FALSE) {
   # Establish list for custom cluster color palettes
   custom_colors <- list()
 
@@ -359,7 +357,6 @@ add_cluster_annotations <- function(seurat_obj, cluster_obj, silent = FALSE){
 
   # Loop through all annotation sets
   for (i in 1:length(cluster_obj)) {
-
     # Get target resolution for annotation set
     target_res <- paste0("res_", cluster_obj[[i]]$resolution)
     if (!grepl("\\.", target_res)) {
@@ -371,7 +368,7 @@ add_cluster_annotations <- function(seurat_obj, cluster_obj, silent = FALSE){
 
     # Clean up annotation set display name
     clean_display_name <- tolower(gsub(" ", "_", display_name))
-    clean_display_name <- gsub("[[:punct:]]+", '_', clean_display_name)
+    clean_display_name <- gsub("[[:punct:]]+", "_", clean_display_name)
 
     # Get map to add custom annotation set to Seurat meta.data
     cluster_number <- c()
@@ -393,13 +390,12 @@ add_cluster_annotations <- function(seurat_obj, cluster_obj, silent = FALSE){
     # Add custom annotation set to Seurat meta.data
     seurat_obj@meta.data <- suppressMessages(
       seurat_obj@meta.data %>%
-      dplyr::left_join(annotation_map)
+        dplyr::left_join(annotation_map)
     )
 
     # Add custom cluster colors to custom_colors object
     custom_colors[[clean_display_name]] <- annotation_set[[3]] # cluster_color
     names(custom_colors[[clean_display_name]]) <- annotation_set[[2]] # cluster_display_name
-
   }
 
   # Convert Seurat meta.data "cells" column back to rownames
@@ -411,7 +407,6 @@ add_cluster_annotations <- function(seurat_obj, cluster_obj, silent = FALSE){
       colors = custom_colors
     )
   )
-
 }
 
 
@@ -426,18 +421,16 @@ add_cluster_annotations <- function(seurat_obj, cluster_obj, silent = FALSE){
 #' @param silent Boolean, whether to suppress console messages
 #' @returns Requested Seurat object; if `seurat_type=final`, also returns custom cluster color palettes
 #' @export
-pluto_read_seurat_object <- function(experiment_id, seurat_type, silent = FALSE){
-
+pluto_read_seurat_object <- function(experiment_id, seurat_type, silent = FALSE) {
   seurat_obj <- pluto_get_seurat_object(experiment_id, seurat_type, silent)
 
-  if (seurat_type == "final"){
+  if (seurat_type == "final") {
     cluster_obj <- pluto_get_cluster_annotation_sets(experiment_id, silent)
     final_obj <- add_cluster_annotations(seurat_obj$obj, cluster_obj$obj, silent)
     return(final_obj)
   } else {
     return(seurat_obj$obj)
   }
-
 }
 
 
@@ -454,27 +447,41 @@ pluto_read_seurat_object <- function(experiment_id, seurat_type, silent = FALSE)
 #' @returns Saves the downloaded Seurat object to `dest_filename`
 #' @export
 pluto_download_seurat_object <- function(experiment_id, seurat_type,
-                                         silent = FALSE, dest_filename = NULL){
-
-  if (is.null(dest_filename)){
+                                         silent = FALSE, dest_filename = NULL) {
+  if (is.null(dest_filename)) {
     dest_filename <- paste0(experiment_id, "_", seurat_type, "_seurat_object.rds")
   }
 
-  endpoint <- '/files/?data_type=seurat'
+  endpoint <- "/files/?data_type=seurat"
   url_path_get <- paste0("lab/experiments/", experiment_id, endpoint)
 
   seurat_resp <- pluto_GET(url_path_get)
-  if (seurat_type == "raw"){
-    seurat_uuid <- seurat_resp$seurat$items[[1]]$uuid
-  } else if (seurat_type == "final"){
-    seurat_uuid <- seurat_resp$seurat$items[[2]]$uuid
-  } else{
-    stop("Unsupported seurat_type Supported Seurat object types are 'raw', 'final'.")
+  if (length(seurat_resp$seurat$count) == 0) {
+    stop("No Seurat object found for this experiment.")
   }
-  url_path_download <- paste0("lab/experiments/", experiment_id,
-                              "/files/", seurat_uuid, "/download/")
+
+  seurat_items <- seurat_resp$seurat$items
+  matched_item <- NULL
+  for (item in seurat_items) {
+    is_final <- item$filename == "seurat_06_refine_object.rds"
+    if ((seurat_type == "final" && is_final) ||
+      (seurat_type == "raw" && !is_final)) {
+      matched_item <- item
+      break
+    }
+  }
+
+  if (is.null(matched_item)) {
+    stop(paste0(
+      "No matching Seurat object found for type '", seurat_type, "'."
+    ))
+  }
+
+  seurat_uuid <- matched_item$uuid
+  url_path_download <- paste0(
+    "lab/experiments/", experiment_id,
+    "/files/", seurat_uuid, "/download/"
+  )
 
   pluto_download(url_path_download, dest_filename)
-
 }
-
