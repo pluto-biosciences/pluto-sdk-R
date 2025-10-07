@@ -33,6 +33,16 @@ A typical, minimal workflow using `pluto` involves:
 3. Perform some custom analysis (see `vignette("rnaseq_recipes")` for inspiration :sparkles:)
 4. Push your results back into the Pluto canvas
 
+## Tips and tricks
+
+When transferring a large amount of data (eg. fetching a Seurat object), circumvent network issues by
+changing your R options: 
+
+```
+options(download.file.method = "curl")
+options(download.file.extra = "--retry 6 --retry-delay 5 --continue-at -")
+```
+
 There are also numerous ways to use `pluto` at a larger scale, for example with multiple data sets or integrating with your in-house tools. A few examples include:
 
 * Fetching all RNA-seq experiments in a project and performing a meta-analysis of their differential expression results
