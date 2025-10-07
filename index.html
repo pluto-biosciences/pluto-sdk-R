@@ -101,6 +101,13 @@
 <li>Perform some custom analysis (see <code><a href="articles/rnaseq_recipes.html">vignette("rnaseq_recipes")</a></code> for inspiration <span class="emoji" data-emoji="sparkles">✨</span>)</li>
 <li>Push your results back into the Pluto canvas</li>
 </ol>
+</div>
+<div class="section level2">
+<h2 id="tips-and-tricks">Tips and tricks<a class="anchor" aria-label="anchor" href="#tips-and-tricks"></a>
+</h2>
+<p>When transferring a large amount of data (eg. fetching a Seurat object), circumvent network issues by changing your R options:</p>
+<pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>download.file.method <span class="op">=</span> <span class="st">"curl"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>download.file.extra <span class="op">=</span> <span class="st">"--retry 6 --retry-delay 5 --continue-at -"</span><span class="op">)</span></span></code></pre>
 <p>There are also numerous ways to use <code>pluto</code> at a larger scale, for example with multiple data sets or integrating with your in-house tools. A few examples include:</p>
 <ul>
 <li>Fetching all RNA-seq experiments in a project and performing a meta-analysis of their differential expression results</li>
@@ -190,7 +197,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
