@@ -39,6 +39,37 @@ Sys.setenv(PLUTO_ENV = "staging")       # or "development"
 
 See `vignette("authentication")` for the full flow.
 
+### Organizations
+
+If your Pluto token has access to **multiple organizations**, you can
+scope requests to a specific one. When no organization is set, the
+backend falls back to the user's `default_organization` — enough for
+single-org users.
+
+```r
+# Discover your organizations
+orgs <- pluto_list_organizations()
+for (o in orgs) cat(o$uuid, "-", o$name, "\n")
+
+# Option 1: set at login time
+pluto_login("YOUR_API_KEY", organization = "<org-uuid>")
+
+# Option 2: switch mid-session
+pluto_use_organization("<org-uuid>")
+pluto_current_organization()          # -> "<org-uuid>"
+pluto_use_organization(NULL)          # clear; fall back to user default
+
+# Option 3: environment variable
+Sys.setenv(PLUTO_ORGANIZATION = "<org-uuid>")
+
+# Option 4: per-call override
+pluto_GET("lab/experiments/", organization = "<other-org-uuid>")
+```
+
+A per-call `organization` argument beats the env var; the env var beats
+the backend default. Passing an org the user isn't a member of returns
+a 403 (`pluto_permission_error`).
+
 ## Quick reference
 
 ```r

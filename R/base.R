@@ -53,10 +53,22 @@ base_url <- function(){
 }
 
 
+# Resolve the organization UUID to send as the `Organization` header.
+# Explicit argument wins; otherwise falls back to PLUTO_ORGANIZATION env
+# var. Returning NULL means "don't send the header" — the backend will
+# then resolve to the user's default_organization (for SDK/token auth).
+.resolve_organization <- function(organization){
+  if (!is.null(organization)) return(if (nzchar(organization)) organization else NULL)
+  env <- Sys.getenv("PLUTO_ORGANIZATION", unset = "")
+  if (!identical(env, "") && nzchar(env)) return(env)
+  NULL
+}
+
+
 # Build a pre-configured httr2 request that already has auth, timeout, and
 # retry behavior applied. Shared by every HTTP helper below so we only
 # maintain one place.
-.pluto_request <- function(url_path, api_token, timeout, max_retries){
+.pluto_request <- function(url_path, api_token, timeout, max_retries, organization = NULL){
 
   if (is.null(api_token)){
     api_token <- Sys.getenv('PLUTO_API_TOKEN')
@@ -65,11 +77,16 @@ base_url <- function(){
 
   timeout <- .resolve_timeout(timeout)
   max_retries <- .resolve_max_retries(max_retries)
+  organization <- .resolve_organization(organization)
 
   req <- httr2::request(paste0(base_url(), url_path)) %>%
     httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
     httr2::req_timeout(timeout) %>%
     httr2::req_error(is_error = function(resp) FALSE)
+
+  if (!is.null(organization)){
+    req <- req %>% httr2::req_headers(Organization = organization)
+  }
 
   if (max_retries > 0){
     req <- req %>%
@@ -131,9 +148,9 @@ base_url <- function(){
 #'   the `PLUTO_MAX_RETRIES` env var.
 #' @returns API response object containing `count`, a count of the total experiments
 #' in the project, and `items`, an array of experiments
-pluto_GET <- function(url_path, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL) {
+pluto_GET <- function(url_path, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
 
-  req <- .pluto_request(url_path, api_token, timeout, max_retries) %>%
+  req <- .pluto_request(url_path, api_token, timeout, max_retries, organization) %>%
     httr2::req_method("GET")
 
   resp <- req %>% httr2::req_perform()
@@ -156,9 +173,9 @@ pluto_GET <- function(url_path, api_token = NULL, strict = FALSE, timeout = NULL
 #' @param max_retries Max retries on 429 only (default 3).
 #' @returns API response object
 #' @keywords internal
-pluto_POST <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL) {
+pluto_POST <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
 
-  req <- .pluto_request(url_path, api_token, timeout, max_retries) %>%
+  req <- .pluto_request(url_path, api_token, timeout, max_retries, organization) %>%
     httr2::req_method("POST") %>%
     httr2::req_body_json(body_data)
 
@@ -182,9 +199,9 @@ pluto_POST <- function(url_path, body_data, api_token = NULL, strict = FALSE, ti
 #' @param max_retries Max retries on 429/5xx.
 #' @returns API response object
 #' @keywords internal
-pluto_PUT <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL) {
+pluto_PUT <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
 
-  req <- .pluto_request(url_path, api_token, timeout, max_retries) %>%
+  req <- .pluto_request(url_path, api_token, timeout, max_retries, organization) %>%
     httr2::req_method("PUT") %>%
     httr2::req_body_json(body_data)
 
@@ -202,9 +219,9 @@ pluto_PUT <- function(url_path, body_data, api_token = NULL, strict = FALSE, tim
 #' @param max_retries Max retries on 429/5xx.
 #' @returns API response object
 #' @keywords internal
-pluto_PATCH <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL) {
+pluto_PATCH <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
 
-  req <- .pluto_request(url_path, api_token, timeout, max_retries) %>%
+  req <- .pluto_request(url_path, api_token, timeout, max_retries, organization) %>%
     httr2::req_method("PATCH") %>%
     httr2::req_body_json(body_data)
 
@@ -221,9 +238,9 @@ pluto_PATCH <- function(url_path, body_data, api_token = NULL, strict = FALSE, t
 #' @param max_retries Max retries on 429/5xx.
 #' @returns API response object (may be empty for 204 No Content)
 #' @keywords internal
-pluto_DELETE <- function(url_path, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL) {
+pluto_DELETE <- function(url_path, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
 
-  req <- .pluto_request(url_path, api_token, timeout, max_retries) %>%
+  req <- .pluto_request(url_path, api_token, timeout, max_retries, organization) %>%
     httr2::req_method("DELETE")
 
   resp <- req %>% httr2::req_perform()
