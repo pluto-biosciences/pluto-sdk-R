@@ -79,7 +79,15 @@ pluto_get_experiment_data_paginated <- function(experiment_id, table_type,
             httr2::req_headers(Authorization = paste0("Token ", api_token))
         })
 
-        resps <- httr2::multi_req_perform(reqs)
+        # httr2 >= 1.0 renamed multi_req_perform -> req_perform_parallel.
+        # Fall back to the old name so the SDK keeps working on older httr2.
+        perform_many <- if (exists("req_perform_parallel",
+                                   where = asNamespace("httr2"), inherits = FALSE)) {
+          httr2::req_perform_parallel
+        } else {
+          get("multi_req_perform", envir = asNamespace("httr2"))
+        }
+        resps <- perform_many(reqs)
 
         paginated_resp_objs <- c()
 

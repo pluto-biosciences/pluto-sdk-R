@@ -1,4 +1,24 @@
 # Base functions for interfacing with the Pluto API
+#
+# Historically these functions returned the parsed JSON body plus an extra
+# `$response_status_code` field and never threw on non-2xx. That behavior is
+# preserved (existing callers continue to work unchanged), but each HTTP
+# helper now also accepts `strict = TRUE` to route failures through
+# `pluto_check_response()` and raise a typed `rlang` condition. Retries on
+# 429/5xx and explicit timeouts apply automatically.
+
+
+# Default (connect + read) timeout in seconds. Researchers can override with
+# the PLUTO_TIMEOUT env var or the `timeout` argument on any HTTP helper.
+.pluto_default_timeout <- 60
+
+# Default number of retries on 429/5xx responses. Override via
+# PLUTO_MAX_RETRIES or the `max_retries` arg.
+.pluto_default_max_retries <- 3
+
+# HTTP status codes that should trigger an httr2 retry.
+.pluto_retry_on_status <- c(429L, 500L, 502L, 503L, 504L)
+
 
 base_url <- function(){
   if(Sys.getenv("PLUTO_ENV") == "staging"){
@@ -11,105 +31,236 @@ base_url <- function(){
 }
 
 
-#' Pluto internal GET function
-#'
-#' @description
-#' Makes a GET request to the Pluto API
-#'
-#' @param url_path URL path (e.g. "lab/projects/?limit=10")
-#' @param api_token Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used
-#' @returns API response object containing `count`, a count of the total experiments
-#' in the project, and `items`, an array of experiments
-pluto_GET <- function(url_path, api_token = NULL) {
+.resolve_timeout <- function(timeout){
+  if (!is.null(timeout)) return(timeout)
+  env <- Sys.getenv("PLUTO_TIMEOUT", unset = "")
+  if (!identical(env, "")){
+    parsed <- suppressWarnings(as.numeric(env))
+    if (!is.na(parsed) && parsed > 0) return(parsed)
+  }
+  .pluto_default_timeout
+}
 
-  # Check API token
+
+.resolve_max_retries <- function(max_retries){
+  if (!is.null(max_retries)) return(max(0L, as.integer(max_retries)))
+  env <- Sys.getenv("PLUTO_MAX_RETRIES", unset = "")
+  if (!identical(env, "")){
+    parsed <- suppressWarnings(as.integer(env))
+    if (!is.na(parsed) && parsed >= 0) return(parsed)
+  }
+  .pluto_default_max_retries
+}
+
+
+# Resolve the organization UUID to send as the `Organization` header.
+# Explicit argument wins; otherwise falls back to PLUTO_ORGANIZATION env
+# var. Returning NULL means "don't send the header" — the backend will
+# then resolve to the user's default_organization (for SDK/token auth).
+.resolve_organization <- function(organization){
+  if (!is.null(organization)) return(if (nzchar(organization)) organization else NULL)
+  env <- Sys.getenv("PLUTO_ORGANIZATION", unset = "")
+  if (!identical(env, "") && nzchar(env)) return(env)
+  NULL
+}
+
+
+# Build a pre-configured httr2 request that already has auth, timeout, and
+# retry behavior applied. Shared by every HTTP helper below so we only
+# maintain one place.
+.pluto_request <- function(url_path, api_token, timeout, max_retries, organization = NULL){
+
   if (is.null(api_token)){
     api_token <- Sys.getenv('PLUTO_API_TOKEN')
   }
   validate_auth(api_token)
 
-  # GET request
+  timeout <- .resolve_timeout(timeout)
+  max_retries <- .resolve_max_retries(max_retries)
+  organization <- .resolve_organization(organization)
+
   req <- httr2::request(paste0(base_url(), url_path)) %>%
-    httr2::req_method("GET") %>%
     httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
+    httr2::req_timeout(timeout) %>%
     httr2::req_error(is_error = function(resp) FALSE)
 
-  # Response
-  resp <- req %>% httr2::req_perform()
-  resp_obj <- httr2::resp_body_json(resp)
-  resp_obj$response_status_code <- resp$status_code
+  if (!is.null(organization)){
+    req <- req %>% httr2::req_headers(Organization = organization)
+  }
 
-  return(resp_obj)
+  if (max_retries > 0){
+    req <- req %>%
+      httr2::req_retry(
+        max_tries = max_retries + 1L,  # max_tries counts the initial attempt
+        backoff = function(attempt) min(30, 2^(attempt - 1)),
+        is_transient = function(resp) {
+          isTRUE(httr2::resp_status(resp) %in% .pluto_retry_on_status)
+        }
+      )
+  }
+
+  req
+}
+
+
+# Turn a finished response into the legacy "parsed body + status_code" list,
+# tolerating empty bodies (e.g. 204 No Content).
+.pluto_finish <- function(resp, strict = FALSE){
+
+  status <- httr2::resp_status(resp)
+  body_size <- tryCatch(
+    length(httr2::resp_body_raw(resp)),
+    error = function(e) 0
+  )
+
+  if (body_size == 0){
+    resp_obj <- list()
+  } else {
+    resp_obj <- tryCatch(
+      httr2::resp_body_json(resp),
+      error = function(e) list()
+    )
+  }
+
+  resp_obj$response_status_code <- status
+
+  if (isTRUE(strict)){
+    pluto_check_response(resp_obj)
+  }
+
+  resp_obj
+}
+
+
+#' Pluto internal GET function
+#'
+#' @description
+#' Makes a GET request to the Pluto API. Applies automatic retries on
+#' 429/5xx and a default 60s timeout.
+#'
+#' @param url_path URL path (e.g. "lab/projects/?limit=10")
+#' @param api_token Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used
+#' @param strict If TRUE, raise a classed `rlang` condition on non-2xx instead of
+#'   returning the response list. See [pluto_check_response()].
+#' @param timeout Request timeout in seconds. Defaults to 60; override via
+#'   the `PLUTO_TIMEOUT` env var.
+#' @param max_retries Max retries on 429/5xx. Defaults to 3; override via
+#'   the `PLUTO_MAX_RETRIES` env var.
+#' @param organization Optional organization UUID to scope the request to.
+#'   Sent as the `Organization` header. Falls back to the
+#'   `PLUTO_ORGANIZATION` env var, then to the user's `default_organization`
+#'   on the backend.
+#' @returns API response object containing `count`, a count of the total experiments
+#' in the project, and `items`, an array of experiments
+pluto_GET <- function(url_path, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
+
+  req <- .pluto_request(url_path, api_token, timeout, max_retries, organization) %>%
+    httr2::req_method("GET")
+
+  resp <- req %>% httr2::req_perform()
+  .pluto_finish(resp, strict = strict)
 }
 
 
 #' Pluto internal POST function
 #'
 #' @description
-#' Makes a POST request to the Pluto API
+#' Makes a POST request to the Pluto API. POST is NOT retried automatically
+#' (to avoid accidentally creating resources twice) — only 429 triggers a
+#' retry because the server is explicitly asking us to back off.
 #'
 #' @param url_path URL path (e.g. "lab/projects/?limit=10")
 #' @param body_data Data to be included in body
 #' @param api_token Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used
-#' @returns API response object containing `count`, a count of the total experiments
-#' in the project, and `items`, an array of experiments
+#' @param strict If TRUE, raise a classed `rlang` condition on non-2xx.
+#' @param timeout Request timeout in seconds (default 60).
+#' @param max_retries Max retries on 429 only (default 3).
+#' @param organization Optional organization UUID sent as the `Organization`
+#'   header. Falls back to `PLUTO_ORGANIZATION` env var, then the backend
+#'   default.
+#' @returns API response object
 #' @keywords internal
-pluto_POST <- function(url_path, body_data, api_token = NULL) {
+pluto_POST <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
 
-  # Check API token
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  }
-  validate_auth(api_token)
-
-  # POST request
-  req <- httr2::request(paste0(base_url(), url_path)) %>%
+  req <- .pluto_request(url_path, api_token, timeout, max_retries, organization) %>%
     httr2::req_method("POST") %>%
-    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
-    httr2::req_body_json(body_data) %>%
-    httr2::req_error(is_error = function(resp) FALSE)
+    httr2::req_body_json(body_data)
 
-  # Response
+  # For POST we only retry on 429 (the server is asking us to back off); other
+  # failures may have created a resource and should not be retried blindly.
+  req$policies$retry_is_transient <- function(resp) {
+    isTRUE(httr2::resp_status(resp) == 429L)
+  }
+
   resp <- req %>% httr2::req_perform()
-  resp_obj <- httr2::resp_body_json(resp)
-  resp_obj$response_status_code <- resp$status_code
-
-  return(resp_obj)
+  .pluto_finish(resp, strict = strict)
 }
 
 
 #' Pluto internal PUT function
-#'
-#' @description
-#' Makes a PUT request to the Pluto API
-#'
-#' @param url_path URL path (e.g. "lab/projects/?limit=10")
+#' @param url_path URL path
 #' @param body_data Data to be included in body
-#' @param api_token Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used
-#' @returns API response object containing `count`, a count of the total experiments
-#' in the project, and `items`, an array of experiments
+#' @param api_token Optional API token
+#' @param strict If TRUE, raise a classed condition on non-2xx.
+#' @param timeout Request timeout in seconds.
+#' @param max_retries Max retries on 429/5xx.
+#' @param organization Optional organization UUID sent as the `Organization`
+#'   header. Falls back to `PLUTO_ORGANIZATION` env var, then the backend
+#'   default.
+#' @returns API response object
 #' @keywords internal
-pluto_PUT <- function(url_path, body_data, api_token = NULL) {
+pluto_PUT <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
 
-  # Check API token
-  if (is.null(api_token)){
-    api_token <- Sys.getenv('PLUTO_API_TOKEN')
-  }
-  validate_auth(api_token)
-
-  # PUT request
-  req <- httr2::request(paste0(base_url(), url_path)) %>%
+  req <- .pluto_request(url_path, api_token, timeout, max_retries, organization) %>%
     httr2::req_method("PUT") %>%
-    httr2::req_headers(Authorization = paste0('Token ', api_token)) %>%
-    httr2::req_body_json(body_data) %>%
-    httr2::req_error(is_error = function(resp) FALSE)
+    httr2::req_body_json(body_data)
 
-  # Response
   resp <- req %>% httr2::req_perform()
-  resp_obj <- httr2::resp_body_json(resp)
-  resp_obj$response_status_code <- resp$status_code
+  .pluto_finish(resp, strict = strict)
+}
 
-  return(resp_obj)
+
+#' Pluto internal PATCH function
+#' @param url_path URL path
+#' @param body_data Data to be included in body
+#' @param api_token Optional API token
+#' @param strict If TRUE, raise a classed condition on non-2xx.
+#' @param timeout Request timeout in seconds.
+#' @param max_retries Max retries on 429/5xx.
+#' @param organization Optional organization UUID sent as the `Organization`
+#'   header. Falls back to `PLUTO_ORGANIZATION` env var, then the backend
+#'   default.
+#' @returns API response object
+#' @keywords internal
+pluto_PATCH <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
+
+  req <- .pluto_request(url_path, api_token, timeout, max_retries, organization) %>%
+    httr2::req_method("PATCH") %>%
+    httr2::req_body_json(body_data)
+
+  resp <- req %>% httr2::req_perform()
+  .pluto_finish(resp, strict = strict)
+}
+
+
+#' Pluto internal DELETE function
+#' @param url_path URL path
+#' @param api_token Optional API token
+#' @param strict If TRUE, raise a classed condition on non-2xx.
+#' @param timeout Request timeout in seconds.
+#' @param max_retries Max retries on 429/5xx.
+#' @param organization Optional organization UUID sent as the `Organization`
+#'   header. Falls back to `PLUTO_ORGANIZATION` env var, then the backend
+#'   default.
+#' @returns API response object (may be empty for 204 No Content)
+#' @keywords internal
+pluto_DELETE <- function(url_path, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
+
+  req <- .pluto_request(url_path, api_token, timeout, max_retries, organization) %>%
+    httr2::req_method("DELETE")
+
+  resp <- req %>% httr2::req_perform()
+  .pluto_finish(resp, strict = strict)
 }
 
 
@@ -198,10 +349,6 @@ pluto_upload <- function(experiment_id, file_path) {
     httr2::req_perform()
 
   upload_resp_obj <- httr2::resp_body_json(resp2)
-
-  # How I debugged:
-  # resp_obj <- httr2::resp_body_string(resp2)
-  # Invalid request.  According to the Content-Range header, the upload offset is 1 byte(s), which exceeds already uploaded size of 0 byte(s).
 
   if (resp2$status_code %in% c(200, 201)) {
     message("Upload successful!")

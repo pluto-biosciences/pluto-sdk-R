@@ -1,6 +1,6 @@
 Package: pluto
 Title: Query and manipulate biological data stored in Pluto
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     person(c("Rani", "K"), "Powers", , "rani.powers@pluto.bio", role = c("aut", "cre"))
 Description: Read assay data and sample annotations that are stored in
@@ -13,22 +13,24 @@ URL: https://pluto.bio, https://github.com/pluto-biosciences/pluto-sdk-R, https:
 BugReports: https://github.com/pluto-biosciences/pluto-sdk-R/issues
 Depends: 
     R (>= 4.0)
-Imports: 
+Imports:
     dplyr,
     htmlwidgets,
     httr2 (>= 0.2.3),
+    rlang,
     tibble,
     tidyr
-Suggests: 
+Suggests:
     httptest2,
     testthat (>= 3.0.0),
     plotly,
     knitr,
     rmarkdown,
     markdown,
-    Seurat
+    Seurat,
+    withr
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
