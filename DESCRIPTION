@@ -13,10 +13,11 @@ URL: https://pluto.bio, https://github.com/pluto-biosciences/pluto-sdk-R, https:
 BugReports: https://github.com/pluto-biosciences/pluto-sdk-R/issues
 Depends: 
     R (>= 4.0)
-Imports: 
+Imports:
     dplyr,
     htmlwidgets,
     httr2 (>= 0.2.3),
+    rlang,
     tibble,
     tidyr
 Suggests: 
