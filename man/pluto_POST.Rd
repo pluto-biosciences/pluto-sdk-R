@@ -4,7 +4,15 @@
 \alias{pluto_POST}
 \title{Pluto internal POST function}
 \usage{
-pluto_POST(url_path, body_data, api_token = NULL)
+pluto_POST(
+  url_path,
+  body_data,
+  api_token = NULL,
+  strict = FALSE,
+  timeout = NULL,
+  max_retries = NULL,
+  organization = NULL
+)
 }
 \arguments{
 \item{url_path}{URL path (e.g. "lab/projects/?limit=10")}
@@ -12,12 +20,23 @@ pluto_POST(url_path, body_data, api_token = NULL)
 \item{body_data}{Data to be included in body}
 
 \item{api_token}{Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used}
+
+\item{strict}{If TRUE, raise a classed \code{rlang} condition on non-2xx.}
+
+\item{timeout}{Request timeout in seconds (default 60).}
+
+\item{max_retries}{Max retries on 429 only (default 3).}
+
+\item{organization}{Optional organization UUID sent as the \code{Organization}
+header. Falls back to \code{PLUTO_ORGANIZATION} env var, then the backend
+default.}
 }
 \value{
-API response object containing \code{count}, a count of the total experiments
-in the project, and \code{items}, an array of experiments
+API response object
 }
 \description{
-Makes a POST request to the Pluto API
+Makes a POST request to the Pluto API. POST is NOT retried automatically
+(to avoid accidentally creating resources twice) — only 429 triggers a
+retry because the server is explicitly asking us to back off.
 }
 \keyword{internal}

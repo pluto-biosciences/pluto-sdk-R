@@ -4,7 +4,12 @@
 \alias{pluto_login}
 \title{Validate and store Pluto API token}
 \usage{
-pluto_login(api_key, save_Renviron = FALSE, silent = FALSE)
+pluto_login(
+  api_key,
+  save_Renviron = FALSE,
+  silent = FALSE,
+  organization = NULL
+)
 }
 \arguments{
 \item{api_key}{String, API token}
@@ -12,6 +17,13 @@ pluto_login(api_key, save_Renviron = FALSE, silent = FALSE)
 \item{save_Renviron}{Boolean, save the API token to .Renviron}
 
 \item{silent}{Boolean, suppress login message}
+
+\item{organization}{Optional organization UUID to scope subsequent requests
+to. Sent as the \code{Organization} header on every request. If omitted, the
+backend resolves to the user's \code{default_organization}. Required for users
+with access to multiple organizations who want to target a specific one.
+Stored in the \code{PLUTO_ORGANIZATION} env var. Use \code{\link[=pluto_list_organizations]{pluto_list_organizations()}}
+to discover available orgs and \code{\link[=pluto_use_organization]{pluto_use_organization()}} to switch later.}
 }
 \value{
 \code{TRUE} if API key is valid, otherwise returns an error message.

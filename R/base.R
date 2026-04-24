@@ -146,6 +146,10 @@ base_url <- function(){
 #'   the `PLUTO_TIMEOUT` env var.
 #' @param max_retries Max retries on 429/5xx. Defaults to 3; override via
 #'   the `PLUTO_MAX_RETRIES` env var.
+#' @param organization Optional organization UUID to scope the request to.
+#'   Sent as the `Organization` header. Falls back to the
+#'   `PLUTO_ORGANIZATION` env var, then to the user's `default_organization`
+#'   on the backend.
 #' @returns API response object containing `count`, a count of the total experiments
 #' in the project, and `items`, an array of experiments
 pluto_GET <- function(url_path, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
@@ -171,6 +175,9 @@ pluto_GET <- function(url_path, api_token = NULL, strict = FALSE, timeout = NULL
 #' @param strict If TRUE, raise a classed `rlang` condition on non-2xx.
 #' @param timeout Request timeout in seconds (default 60).
 #' @param max_retries Max retries on 429 only (default 3).
+#' @param organization Optional organization UUID sent as the `Organization`
+#'   header. Falls back to `PLUTO_ORGANIZATION` env var, then the backend
+#'   default.
 #' @returns API response object
 #' @keywords internal
 pluto_POST <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
@@ -197,6 +204,9 @@ pluto_POST <- function(url_path, body_data, api_token = NULL, strict = FALSE, ti
 #' @param strict If TRUE, raise a classed condition on non-2xx.
 #' @param timeout Request timeout in seconds.
 #' @param max_retries Max retries on 429/5xx.
+#' @param organization Optional organization UUID sent as the `Organization`
+#'   header. Falls back to `PLUTO_ORGANIZATION` env var, then the backend
+#'   default.
 #' @returns API response object
 #' @keywords internal
 pluto_PUT <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
@@ -217,6 +227,9 @@ pluto_PUT <- function(url_path, body_data, api_token = NULL, strict = FALSE, tim
 #' @param strict If TRUE, raise a classed condition on non-2xx.
 #' @param timeout Request timeout in seconds.
 #' @param max_retries Max retries on 429/5xx.
+#' @param organization Optional organization UUID sent as the `Organization`
+#'   header. Falls back to `PLUTO_ORGANIZATION` env var, then the backend
+#'   default.
 #' @returns API response object
 #' @keywords internal
 pluto_PATCH <- function(url_path, body_data, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {
@@ -236,6 +249,9 @@ pluto_PATCH <- function(url_path, body_data, api_token = NULL, strict = FALSE, t
 #' @param strict If TRUE, raise a classed condition on non-2xx.
 #' @param timeout Request timeout in seconds.
 #' @param max_retries Max retries on 429/5xx.
+#' @param organization Optional organization UUID sent as the `Organization`
+#'   header. Falls back to `PLUTO_ORGANIZATION` env var, then the backend
+#'   default.
 #' @returns API response object (may be empty for 204 No Content)
 #' @keywords internal
 pluto_DELETE <- function(url_path, api_token = NULL, strict = FALSE, timeout = NULL, max_retries = NULL, organization = NULL) {

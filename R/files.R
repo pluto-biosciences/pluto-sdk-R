@@ -137,7 +137,8 @@ pluto_get_counts <- function(experiment_id, kind = "raw", dest_dir = tempdir()){
 
 #' List BigWig coverage files for an experiment
 #' @param experiment_id Pluto experiment ID.
-#' @returns A list of file records ({uuid, filename, file_size, ...}).
+#' @returns A list of file records, each with `uuid`, `filename`, `file_size`
+#'   and related metadata.
 #' @export
 pluto_list_bigwigs <- function(experiment_id){
   .pluto_list_files_by_type(experiment_id, "bigwig")

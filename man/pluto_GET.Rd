@@ -4,17 +4,39 @@
 \alias{pluto_GET}
 \title{Pluto internal GET function}
 \usage{
-pluto_GET(url_path, api_token = NULL)
+pluto_GET(
+  url_path,
+  api_token = NULL,
+  strict = FALSE,
+  timeout = NULL,
+  max_retries = NULL,
+  organization = NULL
+)
 }
 \arguments{
 \item{url_path}{URL path (e.g. "lab/projects/?limit=10")}
 
 \item{api_token}{Optional API token, otherwise the PLUTO_API_TOKEN environment variable will be used}
+
+\item{strict}{If TRUE, raise a classed \code{rlang} condition on non-2xx instead of
+returning the response list. See \code{\link[=pluto_check_response]{pluto_check_response()}}.}
+
+\item{timeout}{Request timeout in seconds. Defaults to 60; override via
+the \code{PLUTO_TIMEOUT} env var.}
+
+\item{max_retries}{Max retries on 429/5xx. Defaults to 3; override via
+the \code{PLUTO_MAX_RETRIES} env var.}
+
+\item{organization}{Optional organization UUID to scope the request to.
+Sent as the \code{Organization} header. Falls back to the
+\code{PLUTO_ORGANIZATION} env var, then to the user's \code{default_organization}
+on the backend.}
 }
 \value{
 API response object containing \code{count}, a count of the total experiments
 in the project, and \code{items}, an array of experiments
 }
 \description{
-Makes a GET request to the Pluto API
+Makes a GET request to the Pluto API. Applies automatic retries on
+429/5xx and a default 60s timeout.
 }
