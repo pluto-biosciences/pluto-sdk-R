@@ -64,3 +64,62 @@ test_that("download plot results returns expected response - Differential expres
   expect_equal(nrow(deg_results), NUM_DE_TARGETS_RNASEQ)
   file.remove(temp_filename)
 })
+
+mock_plot_GET <- function(display_type, data_resp){
+  function(url_path, api_token = NULL){
+    if (grepl("/data/", url_path)){
+      return(c(data_resp, response_status_code = 200))
+    }
+    list(analysis_type = "differential_expression",
+         analysis = list(name = "Analysis"),
+         display = list(display_type = display_type, plot_title = "Plot"),
+         response_status_code = 200)
+  }
+}
+
+test_that("read plot results handles missing values - volcano v2", {
+  data_resp <- list(
+    count = 3,
+    headers = list("Gene_Symbol", "Log2_Fold_Change", "Adj_P_Value"),
+    items = list(list("A", "B", NULL),
+                 list(1.5, -0.2, 0.1),
+                 list(0.01, NULL, 0.5))
+  )
+  local_mocked_bindings(pluto_GET = mock_plot_GET("volcano_plot_v2", data_resp))
+  deg_results <- pluto_read_results(experiment_id = "PLX123456",
+                                    plot_id = "plot-uuid", silent = T)
+  expect_s3_class(deg_results, 'data.frame')
+  expect_equal(nrow(deg_results), 3)
+  expect_equal(deg_results$Gene_Symbol, c("A", "B", NA))
+  expect_equal(deg_results$Adj_P_Value, c(0.01, NA, 0.5))
+})
+
+test_that("read plot results handles missing values - sample scatter plot", {
+  data_resp <- list(
+    count = 3,
+    headers = list("Sample_ID", "PC1"),
+    items = list(list(Sample_ID = "s1", PC1 = 1.1),
+                 list(Sample_ID = "s2", PC1 = NULL),
+                 list(Sample_ID = "s3", PC1 = 3.3))
+  )
+  local_mocked_bindings(pluto_GET = mock_plot_GET("sample_scatter_plot", data_resp))
+  pca_results <- pluto_read_results(experiment_id = "PLX123456",
+                                    plot_id = "plot-uuid", silent = T)
+  expect_equal(nrow(pca_results), 3)
+  expect_equal(pca_results$Sample_ID, c("s1", "s2", "s3"))
+  expect_equal(pca_results$PC1, c(1.1, NA, 3.3))
+})
+
+test_that("read plot results without missing values is unchanged", {
+  data_resp <- list(
+    count = 2,
+    headers = list("Gene_Symbol", "Adj_P_Value"),
+    items = list(list("A", "B"),
+                 list(0.01, 0.5))
+  )
+  local_mocked_bindings(pluto_GET = mock_plot_GET("volcano_plot_v2", data_resp))
+  deg_results <- pluto_read_results(experiment_id = "PLX123456",
+                                    plot_id = "plot-uuid", silent = T)
+  expect_equal(deg_results$Gene_Symbol, c("A", "B"))
+  expect_equal(deg_results$Adj_P_Value, c(0.01, 0.5))
+})

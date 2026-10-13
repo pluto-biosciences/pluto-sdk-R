@@ -68,9 +68,9 @@ null_to_na <- function(value){
 clean_row <- function(row){
 
   # Convert any NULLs in the row to NA
-  is_null_vals <- sapply(row, is.null)
+  is_null_vals <- vapply(row, is.null, logical(1))
   if (any(is_null_vals)){
-    null_vals <- row[which(is_null_vals)] <- NA
+    row[is_null_vals] <- NA
   }
   return(row)
 }
@@ -81,7 +81,7 @@ data_response_to_df <- function(response_json){
   nrows <- length(response_json$items)
   df <- data.frame()
 
-  all_rows <- do.call(clean_row, list(response_json$items))
+  all_rows <- lapply(response_json$items, clean_row)
   df <- as.data.frame(do.call(rbind, all_rows))
 
   return(df)
@@ -95,12 +95,8 @@ arrow_response_to_df <- function(response_json){
 
   for (i in 1:length(column_names)){
 
-    # Convert any NULLs in the row to NA
-    y <- response_json$items[[i]]
-    is_null_vals <- sapply(y, is.null)
-    if (any(is_null_vals)){
-      null_vals <- row[which(is_null_vals)] <- NA
-    }
+    # Convert any NULLs in the column to NA
+    y <- clean_row(response_json$items[[i]])
 
     # Append cleaned column to the final data frame
     new_column <- as.data.frame(matrix(y))
